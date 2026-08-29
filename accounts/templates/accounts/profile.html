@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Profile — Academic Assistant{% endblock %}
+{% block body_class %}app-body{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'accounts/css/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+{% with active_nav="profile" %}
+  {% include "partials/sidebar.html" %}
+{% endwith %}
+
+<div class="app-shell">
+
+  <header class="app-topbar">
+    <button type="button" class="app-topbar__menu" id="sidebarOpen" aria-label="Open navigation menu" aria-expanded="false" aria-controls="sidebar">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2.5 5.5H17.5M2.5 10H17.5M2.5 14.5H17.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+    <span class="app-topbar__title">Profile</span>
+  </header>
+
+  <main class="app-main">
+    <div class="page-header">
+      <h1 class="page-header__title">My Profile</h1>
+      <p class="page-header__subtitle">Manage your account and academic information.</p>
+    </div>
+
+    <section class="profile-hero card">
+      <div class="profile-hero__avatar" aria-hidden="true">
+        {{ user.first_name|default:"Michael"|first|upper }}{{ user.last_name|default:"Macho"|first|upper }}
+      </div>
+      <h2 class="profile-hero__name">{{ user.get_full_name|default:"Michael Macho" }}</h2>
+      <p class="profile-hero__email">{{ user.email|default:"michael@example.com" }}</p>
+      <span class="badge {% if user.role == 'lecturer' %}badge--lecturer{% else %}badge--student{% endif %}">
+        {% if user.role == "lecturer" %}Lecturer{% else %}Student{% endif %}
+      </span>
+      <p class="profile-hero__meta">Member since {{ user.date_joined|date:"F Y"|default:"August 2026" }}</p>
+    </section>
+
+    <section class="card" id="personalInfoCard">
+      <div class="card__header">
+        <div>
+          <h3 class="card__title">Personal Information</h3>
+          <p class="card__subtitle">Your basic account details.</p>
+        </div>
+        <button type="button" class="btn btn--ghost btn--sm" id="editProfileBtn" aria-pressed="false">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M9.5 2.5L12.5 5.5L5 13H2V10L9.5 2.5Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+          Edit Profile
+        </button>
+      </div>
+
+      <form class="profile-form" id="profileForm" method="post" action="{% url 'profile' %}">
+        {% csrf_token %}
+        <div class="profile-form__grid">
+          <div class="field">
+            <label class="field__label" for="id_full_name">Full Name</label>
+            <input class="field__input" type="text" id="id_full_name" name="full_name"
+                   value="{{ user.get_full_name|default:'Michael Macho' }}" readonly>
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="id_email_display">Email <span class="field__optional">(read-only)</span></label>
+            <input class="field__input" type="email" id="id_email_display"
+                   value="{{ user.email|default:'michael@example.com' }}" readonly>
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="id_role_display">Role</label>
+            <input class="field__input" type="text" id="id_role_display"
+                   value="{% if user.role == 'lecturer' %}Lecturer{% else %}Student{% endif %}" readonly>
+          </div>
+        </div>
+
+        <div class="profile-form__actions" id="profileFormActions" hidden>
+          <button type="button" class="btn btn--ghost btn--sm" id="cancelEditBtn">Cancel</button>
+          <button type="submit" class="btn btn--primary btn--sm">Save Changes</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="card__header">
+        <div>
+          <h3 class="card__title">Academic Information</h3>
+          <p class="card__subtitle">
+            {% if user.role == "lecturer" %}Your teaching activity at a glance.{% else %}Your learning activity at a glance.{% endif %}
+          </p>
+        </div>
+      </div>
+
+      {% if user.role == "lecturer" %}
+        <div class="stat-grid">
+          <div class="stat-tile">
+            <span class="stat-tile__value">{{ department|default:"Computer Science" }}</span>
+            <span class="stat-tile__label">Department</span>
+          </div>
+          <div class="stat-tile">
+            <span class="stat-tile__value">{{ courses_taught|default:"4" }}</span>
+            <span class="stat-tile__label">Courses Taught</span>
+          </div>
+          <div class="stat-tile">
+            <span class="stat-tile__value">{{ lectures_created|default:"38" }}</span>
+            <span class="stat-tile__label">Lectures Created</span>
+          </div>
+        </div>
+      {% else %}
+        <div class="stat-grid">
+          <div class="stat-tile">
+            <span class="stat-tile__value">{{ courses_enrolled|default:"6" }}</span>
+            <span class="stat-tile__label">Courses Enrolled</span>
+          </div>
+          <div class="stat-tile">
+            <span class="stat-tile__value">{{ lectures_recorded|default:"21" }}</span>
+            <span class="stat-tile__label">Lectures Recorded</span>
+          </div>
+        </div>
+      {% endif %}
+    </section>
+
+    <section class="card">
+      <div class="card__header">
+        <div>
+          <h3 class="card__title">Security</h3>
+          <p class="card__subtitle">Keep your account secure.</p>
+        </div>
+      </div>
+
+      <div class="security-row">
+        <div>
+          <p class="security-row__title">Password</p>
+          <p class="security-row__desc">Keep your account secure by using a strong password.</p>
+        </div>
+        <a href="{% url 'profile' %}" class="btn btn--ghost btn--sm">Change Password</a>
+      </div>
+
+      <div class="security-row">
+        <div>
+          <p class="security-row__title">Sign out</p>
+          <p class="security-row__desc">End your session on this device.</p>
+        </div>
+        <form action="{% url 'profile' %}" method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn--danger-outline btn--sm">Sign out</button>
+        </form>
+      </div>
+    </section>
+  </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/profile.js' %}" defer></script>
+{% endblock %}

@@ -1,0 +1,433 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Sign in — Academic Assistant{% endblock %}
+{% block body_class %}auth-body{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'accounts/css/auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-shell">
+
+  <section class="auth-brand" aria-hidden="false">
+    <div class="auth-brand__inner">
+      <a href="{% url 'login' %}" class="auth-brand__logo">
+        <span class="auth-brand__logo-mark" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1" y="1" width="24" height="24" rx="6" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M7 17L10.5 9L14 15.5L19 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        Academic Assistant
+      </a>
+
+      <div class="auth-brand__copy">
+        <h1 class="auth-brand__title">Record lectures, find important topics, and study smarter.</h1>
+        <p class="auth-brand__subtitle">One workspace for lecture audio, transcripts, and the notes they turn into.</p>
+      </div>
+
+      <!-- Signature visual: a lecture waveform resolving into searchable transcript lines -->
+      <div class="wave-to-text" role="img" aria-label="Illustration of an audio waveform turning into lines of transcribed text">
+        <svg class="wave-to-text__svg" viewBox="0 0 360 160" xmlns="http://www.w3.org/2000/svg">
+          <g class="wave-to-text__bars">
+            <rect x="0"   y="70" width="6" height="20" rx="3"/>
+            <rect x="12"  y="55" width="6" height="50" rx="3"/>
+            <rect x="24"  y="40" width="6" height="80" rx="3"/>
+            <rect x="36"  y="60" width="6" height="40" rx="3"/>
+            <rect x="48"  y="30" width="6" height="100" rx="3"/>
+            <rect x="60"  y="50" width="6" height="60" rx="3"/>
+            <rect x="72"  y="65" width="6" height="30" rx="3"/>
+            <rect x="84"  y="45" width="6" height="70" rx="3"/>
+            <rect x="96"  y="58" width="6" height="44" rx="3"/>
+            <rect x="108" y="35" width="6" height="90" rx="3"/>
+            <rect x="120" y="62" width="6" height="36" rx="3"/>
+          </g>
+          <g class="wave-to-text__lines">
+            <rect x="150" y="52" width="190" height="7" rx="3.5"/>
+            <rect x="150" y="76" width="150" height="7" rx="3.5"/>
+            <rect x="150" y="100" width="170" height="7" rx="3.5"/>
+          </g>
+        </svg>
+      </div>
+
+      <ul class="auth-features">
+        <li class="auth-features__item">
+          <span class="auth-features__icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="7" y="1.5" width="4" height="9" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M4 8.5C4 11 6.24 13 9 13C11.76 13 14 11 14 8.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M9 13V16.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          </span>
+          Smart Lecture Recording
+        </li>
+        <li class="auth-features__item">
+          <span class="auth-features__icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.4"/><path d="M12.2 12.2L16 16" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          </span>
+          Searchable Lecture Transcripts
+        </li>
+        <li class="auth-features__item">
+          <span class="auth-features__icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 1.5L11 6.2L16 7L12.4 10.4L13.3 15.3L9 13L4.7 15.3L5.6 10.4L2 7L7 6.2L9 1.5Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+          </span>
+          AI-Powered Notes &amp; Summaries
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="auth-panel">
+    <div class="auth-card">
+      <h2 class="auth-card__title">Welcome back</h2>
+      <p class="auth-card__subtitle">Sign in to continue to your academic workspace.</p>
+
+      <form class="auth-form" method="post" action="{% url 'login' %}" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="form-errors">
+            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+          </div>
+        {% endif %}
+
+        <div class="field">
+          <label class="field__label" for="{{ form.email.id_for_label|default:'id_email' }}">Email</label>
+          <div class="field__input-wrap">
+            {{ form.email }}
+          </div>
+          {% if form.email.errors %}
+            <span class="field__error is-visible">{{ form.email.errors|first }}</span>
+          {% endif %}
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="{{ form.password.id_for_label|default:'id_password' }}">Password</label>
+          <div class="field__input-wrap">
+            {{ form.password }}
+            <button type="button" class="field__toggle" data-password-toggle="id_password" aria-label="Show password" aria-pressed="false">
+              <svg class="icon-eye" width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M1.5 9C1.5 9 4.5 3.5 9 3.5C13.5 3.5 16.5 9 16.5 9C16.5 9 13.5 14.5 9 14.5C4.5 14.5 1.5 9 1.5 9Z" stroke="currentColor" stroke-width="1.4"/><circle cx="9" cy="9" r="2.4" stroke="currentColor" stroke-width="1.4"/></svg>
+              <svg class="icon-eye-off" width="18" height="18" viewBox="0 0 18 18" fill="none" style="display:none"><path d="M2 2L16 16" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M7.7 4.2C8.1 4.1 8.55 4 9 4C13.5 4 16.5 9.5 16.5 9.5C16.1 10.2 15.4 11.1 14.5 11.9M4.9 5.6C3 6.9 1.5 9.5 1.5 9.5C1.5 9.5 4.5 15 9 15C10.1 15 11.1 14.7 11.9 14.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M7.3 10.7C6.9 10.3 6.7 9.7 6.7 9.1C6.7 7.7 7.8 6.6 9.2 6.6C9.8 6.6 10.4 6.8 10.8 7.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+          {% if form.password.errors %}
+            <span class="field__error is-visible">{{ form.password.errors|first }}</span>
+          {% endif %}
+        </div>
+
+        <div class="field__row auth-form__meta">
+          <label class="checkbox">
+            {{ form.remember_me }}
+            Remember me
+          </label>
+          <a href="{% url 'profile' %}" class="auth-form__link">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn btn--primary btn--block">Sign In</button>
+      </form>
+
+      <p class="auth-card__footer">
+        Don't have an account? <a href="{% url 'register' %}" class="auth-form__link">Create one</a>
+      </p>
+    </div>
+  </section>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/auth.js' %}" defer></script>
+{% endblock %}
+
+
+<style>
+  /* ==========================================================================
+   Auth pages — Login / Register
+   ========================================================================== */
+
+.auth-body { background: var(--white); }
+
+.auth-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+}
+
+/* ---- Left: brand panel --------------------------------------------------- */
+
+.auth-brand {
+  background: linear-gradient(165deg, var(--navy-900) 0%, var(--navy-800) 60%, var(--navy-700) 100%);
+  color: var(--text-on-navy);
+  display: flex;
+  align-items: center;
+  padding: 56px;
+}
+
+.auth-brand__inner {
+  max-width: 420px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.auth-brand__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--white);
+}
+.auth-brand__logo-mark { color: var(--gold-500); display: flex; }
+
+.auth-brand__copy { display: flex; flex-direction: column; gap: 12px; }
+
+.auth-brand__title {
+  font-size: 30px;
+  color: var(--white);
+  letter-spacing: -0.01em;
+}
+
+.auth-brand__subtitle {
+  font-size: 15px;
+  color: var(--text-on-navy-muted);
+  line-height: 1.6;
+}
+
+/* Signature element: waveform resolving into transcript lines */
+.wave-to-text { width: 100%; }
+.wave-to-text__svg { width: 100%; height: auto; overflow: visible; }
+
+.wave-to-text__bars rect {
+  fill: var(--gold-500);
+  transform-origin: center;
+  animation: wave-pulse 2.6s var(--ease) infinite;
+}
+.wave-to-text__lines rect {
+  fill: rgba(231, 238, 246, 0.28);
+}
+.wave-to-text__lines rect:nth-child(1) { fill: rgba(231, 238, 246, 0.55); }
+
+.wave-to-text__bars rect:nth-child(1) { animation-delay: 0ms; }
+.wave-to-text__bars rect:nth-child(2) { animation-delay: 90ms; }
+.wave-to-text__bars rect:nth-child(3) { animation-delay: 180ms; }
+.wave-to-text__bars rect:nth-child(4) { animation-delay: 270ms; }
+.wave-to-text__bars rect:nth-child(5) { animation-delay: 360ms; }
+.wave-to-text__bars rect:nth-child(6) { animation-delay: 450ms; }
+.wave-to-text__bars rect:nth-child(7) { animation-delay: 540ms; }
+.wave-to-text__bars rect:nth-child(8) { animation-delay: 630ms; }
+.wave-to-text__bars rect:nth-child(9) { animation-delay: 720ms; }
+.wave-to-text__bars rect:nth-child(10) { animation-delay: 810ms; }
+.wave-to-text__bars rect:nth-child(11) { animation-delay: 900ms; }
+
+@keyframes wave-pulse {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.55); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wave-to-text__bars rect { animation: none; }
+}
+
+.auth-features, .auth-benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.auth-features__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--text-on-navy);
+}
+.auth-features__icon {
+  width: 32px; height: 32px;
+  border-radius: var(--radius-sm);
+  background: rgba(201, 147, 46, 0.16);
+  color: var(--gold-500);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.auth-benefits__item {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  font-size: 14.5px;
+  color: var(--text-on-navy);
+}
+.auth-benefits__index {
+  font-family: var(--font-display);
+  font-size: 13px;
+  color: var(--gold-500);
+  font-weight: 600;
+  min-width: 22px;
+}
+
+/* ---- Right: form panel ---------------------------------------------------- */
+
+.auth-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 32px;
+}
+
+.auth-card { width: 100%; max-width: 380px; }
+.auth-card--wide { max-width: 460px; }
+
+.auth-card__title {
+  font-size: 26px;
+  margin-bottom: 8px;
+}
+
+.auth-card__subtitle {
+  color: var(--text-secondary);
+  font-size: 14.5px;
+  margin-bottom: 28px;
+}
+
+.auth-form { margin-top: 4px; }
+
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.auth-form__meta { margin-bottom: 22px; }
+
+.auth-form__link {
+  color: var(--navy-800);
+  font-weight: 600;
+  font-size: 13.5px;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--duration) var(--ease);
+}
+.auth-form__link:hover { border-color: var(--navy-800); }
+
+.auth-card__footer {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--text-secondary);
+}
+
+/* ---- Password strength meter ---------------------------------------------- */
+
+.pw-strength {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+.pw-strength__track {
+  flex: 1;
+  height: 4px;
+  background: var(--border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+.pw-strength__fill {
+  display: block;
+  height: 100%;
+  width: 0%;
+  border-radius: var(--radius-full);
+  background: var(--danger);
+  transition: width var(--duration) var(--ease), background var(--duration) var(--ease);
+}
+.pw-strength__label {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* ---- Role selector ---------------------------------------------------------- */
+
+.role-select {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.role-option { display: block; cursor: pointer; }
+.role-option input {
+  position: absolute;
+  opacity: 0;
+  width: 1px; height: 1px;
+}
+
+.role-option__card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  transition: border-color var(--duration) var(--ease), background var(--duration) var(--ease);
+  position: relative;
+}
+
+.role-option input:focus-visible + .role-option__card {
+  outline: 2px solid var(--gold-600);
+  outline-offset: 2px;
+}
+
+.role-option__icon {
+  width: 34px; height: 34px;
+  border-radius: var(--radius-sm);
+  background: var(--navy-050);
+  color: var(--navy-800);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.role-option__title { display: block; font-size: 14px; font-weight: 600; }
+.role-option__desc { display: block; font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+
+.role-option__check {
+  margin-left: auto;
+  width: 18px; height: 18px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--border-strong);
+  flex-shrink: 0;
+  position: relative;
+}
+
+.role-option input:checked + .role-option__card {
+  border-color: var(--navy-800);
+  background: var(--navy-050);
+}
+.role-option input:checked + .role-option__card .role-option__icon {
+  background: var(--navy-800);
+  color: var(--white);
+}
+.role-option input:checked + .role-option__card .role-option__check {
+  border-color: var(--navy-800);
+  background: var(--navy-800);
+}
+.role-option input:checked + .role-option__card .role-option__check::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: var(--radius-full);
+  background: var(--white);
+}
+
+/* ---- Responsive ------------------------------------------------------------ */
+
+@media (max-width: 992px) {
+  .auth-shell { grid-template-columns: 1fr; }
+  .auth-brand { display: none; }
+  .auth-panel { padding: 32px 24px; min-height: 100vh; }
+}
+
+@media (max-width: 480px) {
+  .field-grid { grid-template-columns: 1fr; }
+  .role-select { grid-template-columns: 1fr; }
+  .auth-card__title { font-size: 23px; }
+}
+
+</style>

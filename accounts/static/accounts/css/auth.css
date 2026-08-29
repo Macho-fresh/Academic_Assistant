@@ -1,0 +1,290 @@
+/* ==========================================================================
+   Auth pages — Login / Register
+   ========================================================================== */
+
+.auth-body { background: var(--white); }
+
+.auth-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+}
+
+/* ---- Left: brand panel --------------------------------------------------- */
+
+.auth-brand {
+  background: linear-gradient(165deg, var(--navy-900) 0%, var(--navy-800) 60%, var(--navy-700) 100%);
+  color: var(--text-on-navy);
+  display: flex;
+  align-items: center;
+  padding: 56px;
+}
+
+.auth-brand__inner {
+  max-width: 420px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.auth-brand__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--white);
+}
+.auth-brand__logo-mark { color: var(--gold-500); display: flex; }
+
+.auth-brand__copy { display: flex; flex-direction: column; gap: 12px; }
+
+.auth-brand__title {
+  font-size: 30px;
+  color: var(--white);
+  letter-spacing: -0.01em;
+}
+
+.auth-brand__subtitle {
+  font-size: 15px;
+  color: var(--text-on-navy-muted);
+  line-height: 1.6;
+}
+
+/* Signature element: waveform resolving into transcript lines */
+.wave-to-text { width: 100%; }
+.wave-to-text__svg { width: 100%; height: auto; overflow: visible; }
+
+.wave-to-text__bars rect {
+  fill: var(--gold-500);
+  transform-origin: center;
+  animation: wave-pulse 2.6s var(--ease) infinite;
+}
+.wave-to-text__lines rect {
+  fill: rgba(231, 238, 246, 0.28);
+}
+.wave-to-text__lines rect:nth-child(1) { fill: rgba(231, 238, 246, 0.55); }
+
+.wave-to-text__bars rect:nth-child(1) { animation-delay: 0ms; }
+.wave-to-text__bars rect:nth-child(2) { animation-delay: 90ms; }
+.wave-to-text__bars rect:nth-child(3) { animation-delay: 180ms; }
+.wave-to-text__bars rect:nth-child(4) { animation-delay: 270ms; }
+.wave-to-text__bars rect:nth-child(5) { animation-delay: 360ms; }
+.wave-to-text__bars rect:nth-child(6) { animation-delay: 450ms; }
+.wave-to-text__bars rect:nth-child(7) { animation-delay: 540ms; }
+.wave-to-text__bars rect:nth-child(8) { animation-delay: 630ms; }
+.wave-to-text__bars rect:nth-child(9) { animation-delay: 720ms; }
+.wave-to-text__bars rect:nth-child(10) { animation-delay: 810ms; }
+.wave-to-text__bars rect:nth-child(11) { animation-delay: 900ms; }
+
+@keyframes wave-pulse {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.55); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wave-to-text__bars rect { animation: none; }
+}
+
+.auth-features, .auth-benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.auth-features__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--text-on-navy);
+}
+.auth-features__icon {
+  width: 32px; height: 32px;
+  border-radius: var(--radius-sm);
+  background: rgba(201, 147, 46, 0.16);
+  color: var(--gold-500);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.auth-benefits__item {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  font-size: 14.5px;
+  color: var(--text-on-navy);
+}
+.auth-benefits__index {
+  font-family: var(--font-display);
+  font-size: 13px;
+  color: var(--gold-500);
+  font-weight: 600;
+  min-width: 22px;
+}
+
+/* ---- Right: form panel ---------------------------------------------------- */
+
+.auth-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 32px;
+}
+
+.auth-card { width: 100%; max-width: 380px; }
+.auth-card--wide { max-width: 460px; }
+
+.auth-card__title {
+  font-size: 26px;
+  margin-bottom: 8px;
+}
+
+.auth-card__subtitle {
+  color: var(--text-secondary);
+  font-size: 14.5px;
+  margin-bottom: 28px;
+}
+
+.auth-form { margin-top: 4px; }
+
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.auth-form__meta { margin-bottom: 22px; }
+
+.auth-form__link {
+  color: var(--navy-800);
+  font-weight: 600;
+  font-size: 13.5px;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--duration) var(--ease);
+}
+.auth-form__link:hover { border-color: var(--navy-800); }
+
+.auth-card__footer {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--text-secondary);
+}
+
+/* ---- Password strength meter ---------------------------------------------- */
+
+.pw-strength {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+.pw-strength__track {
+  flex: 1;
+  height: 4px;
+  background: var(--border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+.pw-strength__fill {
+  display: block;
+  height: 100%;
+  width: 0%;
+  border-radius: var(--radius-full);
+  background: var(--danger);
+  transition: width var(--duration) var(--ease), background var(--duration) var(--ease);
+}
+.pw-strength__label {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* ---- Role selector ---------------------------------------------------------- */
+
+.role-select {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.role-option { display: block; cursor: pointer; }
+.role-option input {
+  position: absolute;
+  opacity: 0;
+  width: 1px; height: 1px;
+}
+
+.role-option__card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  transition: border-color var(--duration) var(--ease), background var(--duration) var(--ease);
+  position: relative;
+}
+
+.role-option input:focus-visible + .role-option__card {
+  outline: 2px solid var(--gold-600);
+  outline-offset: 2px;
+}
+
+.role-option__icon {
+  width: 34px; height: 34px;
+  border-radius: var(--radius-sm);
+  background: var(--navy-050);
+  color: var(--navy-800);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.role-option__title { display: block; font-size: 14px; font-weight: 600; }
+.role-option__desc { display: block; font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+
+.role-option__check {
+  margin-left: auto;
+  width: 18px; height: 18px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--border-strong);
+  flex-shrink: 0;
+  position: relative;
+}
+
+.role-option input:checked + .role-option__card {
+  border-color: var(--navy-800);
+  background: var(--navy-050);
+}
+.role-option input:checked + .role-option__card .role-option__icon {
+  background: var(--navy-800);
+  color: var(--white);
+}
+.role-option input:checked + .role-option__card .role-option__check {
+  border-color: var(--navy-800);
+  background: var(--navy-800);
+}
+.role-option input:checked + .role-option__card .role-option__check::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: var(--radius-full);
+  background: var(--white);
+}
+
+/* ---- Responsive ------------------------------------------------------------ */
+
+@media (max-width: 992px) {
+  .auth-shell { grid-template-columns: 1fr; }
+  .auth-brand { display: none; }
+  .auth-panel { padding: 32px 24px; min-height: 100vh; }
+}
+
+@media (max-width: 480px) {
+  .field-grid { grid-template-columns: 1fr; }
+  .role-select { grid-template-columns: 1fr; }
+  .auth-card__title { font-size: 23px; }
+}
