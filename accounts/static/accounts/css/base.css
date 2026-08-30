@@ -295,7 +295,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   font-size: 16px; line-height: 1; padding: 0 2px;
 }
 
-/* ---- Role badge --------------------------------------------------------- */
+/* ---- Role / status badge -------------------------------------------------- */
 
 .badge {
   display: inline-flex;
@@ -310,3 +310,482 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 .badge--student { background: var(--navy-050); color: var(--navy-800); }
 .badge--lecturer { background: var(--gold-100); color: var(--gold-600); }
+.badge--success { background: var(--success-bg); color: var(--success); }
+.badge--pending { background: var(--gold-100); color: var(--gold-600); }
+.badge--danger { background: var(--danger-bg); color: var(--danger); }
+.badge--neutral { background: var(--bg-page); color: var(--text-secondary); }
+
+.badge__spinner { animation: badge-spin 1s linear infinite; }
+@keyframes badge-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .badge__spinner { animation: none; }
+}
+
+/* ==========================================================================
+   Authenticated application shell
+   Shared by every page behind the sidebar: dashboard, lectures, courses,
+   timetable, profile. Page-specific CSS files should only add to this,
+   never redefine it.
+   ========================================================================== */
+
+.app-body { background: var(--bg-page); }
+
+/* ---- Sidebar ------------------------------------------------------------- */
+
+.sidebar {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: 248px;
+  background: var(--navy-900);
+  color: var(--text-on-navy);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 16px;
+  z-index: 200;
+}
+
+.sidebar__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px 20px;
+}
+
+.sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 14.5px;
+  color: var(--white);
+}
+.sidebar__brand-mark { color: var(--gold-500); display: flex; }
+
+.sidebar__close { display: none; background: none; border: none; color: var(--text-on-navy-muted); padding: 6px; }
+
+.sidebar__nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+
+.sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 13.8px;
+  font-weight: 500;
+  color: var(--text-on-navy-muted);
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  transition: background var(--duration) var(--ease), color var(--duration) var(--ease);
+}
+.sidebar__link:hover { background: rgba(255,255,255,0.06); color: var(--text-on-navy); }
+.sidebar__link.is-active { background: rgba(201, 147, 46, 0.14); color: var(--white); }
+.sidebar__icon { display: flex; flex-shrink: 0; }
+
+.sidebar__bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.sidebar__logout-form { margin: 0; }
+.sidebar__link--logout { color: #E3A9A0; }
+.sidebar__link--logout:hover { background: rgba(192, 57, 43, 0.14); color: #F0BDB6; }
+
+.sidebar__user { display: flex; align-items: center; gap: 10px; padding: 6px 8px; }
+.sidebar__avatar {
+  width: 32px; height: 32px;
+  border-radius: var(--radius-full);
+  background: var(--gold-500);
+  color: var(--navy-900);
+  font-weight: 700;
+  font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.sidebar__user-meta { display: flex; flex-direction: column; line-height: 1.3; }
+.sidebar__user-name { font-size: 13.5px; font-weight: 600; color: var(--white); }
+.sidebar__user-role { font-size: 11.5px; color: var(--text-on-navy-muted); }
+
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(11, 35, 64, 0.45);
+  z-index: 190;
+}
+
+/* ---- App shell / topbar --------------------------------------------------- */
+
+.app-shell { margin-left: 248px; min-height: 100vh; }
+
+.app-topbar {
+  display: none;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.app-topbar__menu { background: none; border: none; color: var(--navy-900); padding: 4px; }
+.app-topbar__title { font-family: var(--font-display); font-weight: 600; font-size: 15px; }
+
+.app-main {
+  max-width: 1120px;
+  padding: 40px 40px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Default page-header: title stacked above subtitle (used by Profile). */
+.page-header { margin-bottom: 4px; }
+.page-header__title { font-size: 26px; margin-bottom: 6px; }
+.page-header__subtitle { color: var(--text-secondary); font-size: 14.5px; }
+
+/* Row variant: title/subtitle on the left, actions on the right — used by
+   pages with primary actions (Dashboard, My Lectures, Courses, Timetable). */
+.page-header--row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.page-header--row .page-header__title { margin-bottom: 6px; }
+
+.page-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ---- Cards ------------------------------------------------------------------ */
+
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 28px;
+}
+
+.card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.card__title { font-size: 17px; margin-bottom: 4px; }
+.card__subtitle { font-size: 13.5px; color: var(--text-secondary); }
+.card__link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy-800);
+  white-space: nowrap;
+}
+.card__link:hover { color: var(--gold-600); }
+
+/* ---- Stat grid ------------------------------------------------------------------ */
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
+}
+
+.stat-tile {
+  background: var(--bg-page);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.stat-tile__value { font-family: var(--font-display); font-size: 24px; font-weight: 600; color: var(--navy-900); }
+.stat-tile__label { font-size: 12.5px; color: var(--text-secondary); }
+
+/* ---- Search bar (Lectures / Courses) ------------------------------------------- */
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--white);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  flex: 1;
+  min-width: 200px;
+  transition: border-color var(--duration) var(--ease), box-shadow var(--duration) var(--ease);
+}
+.search-bar:focus-within {
+  border-color: var(--navy-700);
+  box-shadow: 0 0 0 3px var(--navy-050);
+}
+.search-bar__icon { color: var(--text-muted); flex-shrink: 0; display: flex; }
+.search-bar__input {
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 100%;
+  font-size: 14px;
+}
+.search-bar__input::placeholder { color: var(--text-muted); }
+
+.filter-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+.filter-select {
+  padding: 10px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  font-size: 13.5px;
+  color: var(--text-primary);
+}
+.filter-select:focus-visible { border-color: var(--navy-700); }
+
+/* ---- Empty state ---------------------------------------------------------------- */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 56px 24px;
+}
+.empty-state__icon {
+  width: 56px; height: 56px;
+  border-radius: var(--radius-full);
+  background: var(--navy-050);
+  color: var(--navy-700);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 10px;
+}
+.empty-state__title { font-size: 17px; }
+.empty-state__desc {
+  color: var(--text-secondary);
+  font-size: 13.5px;
+  max-width: 380px;
+  margin-bottom: 10px;
+}
+
+/* ---- Lecture card (Dashboard "Recent Lectures" + My Lectures) -------------------- */
+
+.lecture-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0;
+}
+
+.lecture-card__title { font-size: 14.5px; margin-bottom: 3px; }
+.lecture-card__course { font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; }
+.lecture-card__meta { font-size: 12.5px; color: var(--text-muted); }
+
+.lecture-card__checklist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin-top: 12px;
+}
+.lecture-card__check {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.lecture-card__check--done { color: var(--success); }
+.lecture-card__check--processing { color: var(--gold-600); gap: 8px; }
+
+.lecture-card__progress {
+  width: 60px; height: 4px;
+  background: var(--border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  display: inline-block;
+}
+.lecture-card__progress-fill {
+  display: block;
+  height: 100%;
+  width: 40%;
+  background: var(--gold-500);
+  border-radius: var(--radius-full);
+  animation: lecture-progress-slide 1.6s ease-in-out infinite;
+}
+@keyframes lecture-progress-slide {
+  0% { margin-left: -40%; }
+  100% { margin-left: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lecture-card__progress-fill { animation: none; margin-left: 0; }
+}
+
+.lecture-card__side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* Row layout: used inside a single card (Dashboard's Recent Lectures list) */
+.lecture-list { display: flex; flex-direction: column; }
+.lecture-list .lecture-card { padding: 16px 0; }
+.lecture-list .lecture-card:first-child { padding-top: 0; }
+.lecture-list .lecture-card:last-child { padding-bottom: 0; }
+.lecture-list .lecture-card + .lecture-card { border-top: 1px solid var(--border); }
+
+/* Standalone card layout: used on My Lectures, one boxed card per lecture */
+.lecture-grid { display: flex; flex-direction: column; gap: 14px; }
+
+/* ---- Detail-page header pieces (Course Detail, Recording, Lecture Detail) ------- */
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+.back-link:hover { color: var(--navy-800); }
+.back-link svg { flex-shrink: 0; }
+
+.eyebrow {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--navy-700);
+  margin-bottom: 4px;
+}
+
+/* ---- Info grid (Course Information, lecture metadata, etc.) --------------------- */
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 24px;
+}
+.info-item { display: flex; flex-direction: column; gap: 3px; }
+.info-item__label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+.info-item__value { font-size: 14px; color: var(--text-primary); font-weight: 500; }
+
+/* ---- Focused single-column form pages (Add Course, Add Class) ------------------- */
+
+.app-main--form { max-width: 680px; }
+
+.field-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 6px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+/* ---- Modal ------------------------------------------------------------------------ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(11, 35, 64, 0.45);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 400;
+}
+.modal-overlay.is-open { display: flex; }
+
+.modal {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 440px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  padding: 28px;
+}
+
+.modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.modal__title { font-size: 18px; }
+.modal__subtitle { color: var(--text-secondary); font-size: 13px; margin-top: 4px; }
+.modal__close { background: none; border: none; color: var(--text-muted); padding: 4px; }
+.modal__close:hover { color: var(--navy-900); }
+
+.modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+/* ---- Responsive: app shell ------------------------------------------------------- */
+
+@media (max-width: 992px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform var(--duration) var(--ease);
+    box-shadow: var(--shadow-lg);
+  }
+  .sidebar.is-open { transform: translateX(0); }
+  .sidebar__close { display: inline-flex; align-items: center; justify-content: center; }
+
+  .sidebar-backdrop.is-visible { display: block; }
+
+  .app-shell { margin-left: 0; }
+  .app-topbar { display: flex; }
+  .app-main { padding: 28px 24px 48px; }
+}
+
+@media (max-width: 768px) {
+  .card { padding: 22px; }
+}
+
+@media (max-width: 480px) {
+  .app-main { padding: 20px 16px 40px; gap: 16px; }
+  .page-header--row { flex-direction: column; align-items: stretch; }
+  .page-header__actions .btn { flex: 1; }
+  .info-grid { grid-template-columns: 1fr; }
+  .field-grid-2 { grid-template-columns: 1fr; }
+  .form-actions { flex-direction: column-reverse; }
+  .form-actions .btn { width: 100%; }
+}

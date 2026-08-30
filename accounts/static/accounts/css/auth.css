@@ -275,6 +275,42 @@
   background: var(--white);
 }
 
+.field__input-wrap input {
+    width: 100%;
+    padding: 12px 14px;
+
+    background: #f5f6f8;
+    border: none;
+    outline: none;
+    box-shadow: none;
+
+    border-radius: 8px;
+
+    font-size: 14px;
+    color: #111827;
+
+    transition: none;
+}
+
+/* No hover effect */
+.field__input-wrap input:hover {
+    border: none;
+    outline: none;
+    box-shadow: none;
+}
+
+/* No focus effect when typing */
+.field__input-wrap input:focus {
+    border: none;
+    outline: none;
+    box-shadow: none;
+}
+
+/* Placeholder */
+.field__input-wrap input::placeholder {
+    color: #9ca3af;
+}
+
 /* ---- Responsive ------------------------------------------------------------ */
 
 @media (max-width: 992px) {

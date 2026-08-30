@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Timetable — Academic Assistant{% endblock %}
+{% block body_class %}app-body{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'accounts/css/timetable.css' %}">
+{% endblock %}
+
+{% block content %}
+{% with active_nav="timetable" %}
+  {% include "partials/sidebar.html" %}
+{% endwith %}
+
+{% now "l" as today_name %}
+
+<div class="app-shell">
+  {% include "partials/topbar.html" with page_title="Timetable" %}
+
+  <main class="app-main">
+
+    <div class="page-header page-header--row">
+      <div class="page-header__text">
+        <h1 class="page-header__title">Timetable</h1>
+        <p class="page-header__subtitle">View your weekly classes and upcoming lectures.</p>
+      </div>
+      <div class="page-header__actions">
+        <a href="{% url 'add_class' %}" class="btn btn--primary">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 3V13M3 8H13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          Add Class
+        </a>
+      </div>
+    </div>
+
+    <div class="timetable-layout">
+
+      <section class="card next-class-card">
+
+  <p class="next-class-card__eyebrow">
+    Next Class
+  </p>
+
+  {% if next_class %}
+
+    <h3 class="next-class-card__course">
+      {{ next_class.entry.course.course_code }}
+    </h3>
+
+    <p class="next-class-card__title">
+      {{ next_class.entry.course.course_title }}
+    </p>
+
+    <p class="next-class-card__meta">
+      {{ next_class.entry.day|title }},
+      {{ next_class.entry.start_time|time:"g:i A" }}
+
+      {% if next_class.entry.venue %}
+        · {{ next_class.entry.venue }}
+      {% endif %}
+    </p>
+
+    <p class="next-class-card__meta">
+      In {{ next_class.time_until }}
+    </p>
+
+    <a
+      href="{% url 'course_detail' next_class.entry.course.id %}"
+      class="btn btn--ghost btn--block btn--sm"
+    >
+      View Course
+    </a>
+
+  {% else %}
+
+    <h3 class="next-class-card__course">
+      No upcoming class
+    </h3>
+
+    <p class="next-class-card__title">
+      Add a class to your timetable to see it here.
+    </p>
+
+    <a
+      href="{% url 'add_class' %}"
+      class="btn btn--ghost btn--block btn--sm"
+    >
+      Add Class
+    </a>
+
+  {% endif %}
+
+</section>
+
+      <section class="card timetable-card">
+
+        <!-- Mobile day switcher: same days/classes as the desktop grid below,
+             just presented as a list one day at a time. -->
+        <div class="timetable-tabs" role="tablist" aria-label="Select day">
+          <button type="button" class="timetable-tab" data-day-tab="monday" role="tab">Mon</button>
+          <button type="button" class="timetable-tab" data-day-tab="tuesday" role="tab">Tue</button>
+          <button type="button" class="timetable-tab" data-day-tab="wednesday" role="tab">Wed</button>
+          <button type="button" class="timetable-tab" data-day-tab="thursday" role="tab">Thu</button>
+          <button type="button" class="timetable-tab" data-day-tab="friday" role="tab">Fri</button>
+        </div>
+
+        <div class="timetable-grid" style="--hour-count: 9; --hour-height: 64px;">
+          <div class="timetable-grid__gutter">
+            <div class="timetable-grid__gutter-spacer"></div>
+            <div class="timetable-grid__hour">8:00 AM</div>
+            <div class="timetable-grid__hour">9:00 AM</div>
+            <div class="timetable-grid__hour">10:00 AM</div>
+            <div class="timetable-grid__hour">11:00 AM</div>
+            <div class="timetable-grid__hour">12:00 PM</div>
+            <div class="timetable-grid__hour">1:00 PM</div>
+            <div class="timetable-grid__hour">2:00 PM</div>
+            <div class="timetable-grid__hour">3:00 PM</div>
+            <div class="timetable-grid__hour">4:00 PM</div>
+          </div>
+
+          <div class="timetable-grid__days">
+
+            <!-- Each weekday column below repeats the same structure and
+                 filters the same "timetable_entries" queryset by entry.day.
+                 If you'd rather loop this in Python, pass a "days" list of
+                 (key, label) pairs from the view and swap this block for a
+                 for-loop over that list. -->
+
+            {% include "partials/timetable_day.html" with day_key="monday" day_label="Monday" %}
+            {% include "partials/timetable_day.html" with day_key="tuesday" day_label="Tuesday" %}
+            {% include "partials/timetable_day.html" with day_key="wednesday" day_label="Wednesday" %}
+            {% include "partials/timetable_day.html" with day_key="thursday" day_label="Thursday" %}
+            {% include "partials/timetable_day.html" with day_key="friday" day_label="Friday" %}
+
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'accounts/js/timetable.js' %}" defer></script>
+{% endblock %}

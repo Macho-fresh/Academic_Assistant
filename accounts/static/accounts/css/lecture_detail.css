@@ -1,0 +1,186 @@
+/* ==========================================================================
+   Lecture Detail — page-specific styles.
+   Shared shell, card, back-link, eyebrow, badge, and search-bar all live
+   in base.css.
+   ========================================================================== */
+
+/* ---- Processing status card ------------------------------------------------------ */
+
+.processing-card--failed { text-align: left; }
+.processing-card--failed .btn { margin-top: 6px; }
+
+.processing-steps { display: flex; flex-direction: column; gap: 14px; margin-top: 6px; }
+
+.processing-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13.5px;
+  color: var(--text-muted);
+}
+.processing-step--done { color: var(--success); }
+.processing-step--active { color: var(--navy-800); font-weight: 600; }
+.processing-step--pending { color: var(--text-muted); }
+
+.processing-step__dot {
+  width: 9px; height: 9px;
+  border-radius: var(--radius-full);
+  background: var(--gold-500);
+  animation: processing-dot-pulse 1.2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+.processing-step__ring {
+  width: 9px; height: 9px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--border-strong);
+  flex-shrink: 0;
+}
+@keyframes processing-dot-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .processing-step__dot { animation: none; }
+}
+
+/* ---- Audio player ------------------------------------------------------------------ */
+
+.lecture-audio-empty { color: var(--text-secondary); font-size: 13.5px; text-align: center; }
+
+.audio-player {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.audio-player__toggle {
+  width: 44px; height: 44px;
+  border-radius: var(--radius-full);
+  background: var(--navy-900);
+  color: var(--white);
+  border: none;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background var(--duration) var(--ease);
+}
+.audio-player__toggle:hover { background: var(--navy-700); }
+
+.audio-player__timeline { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+
+.audio-player__range {
+  width: 100%;
+  height: 4px;
+  appearance: none;
+  background: var(--border);
+  border-radius: var(--radius-full);
+  outline: none;
+}
+.audio-player__range::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px; height: 14px;
+  border-radius: var(--radius-full);
+  background: var(--navy-900);
+  cursor: pointer;
+}
+.audio-player__range::-moz-range-thumb {
+  width: 14px; height: 14px;
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--navy-900);
+  cursor: pointer;
+}
+
+.audio-player__times {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.audio-player__speed { flex-shrink: 0; width: auto; padding: 8px 10px; }
+
+/* ---- Two-column layout: Transcript (main) + Topics/Summary (side) ------------------ */
+
+.lecture-detail-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.lecture-detail-side { display: flex; flex-direction: column; gap: 20px; }
+
+/* ---- Transcript ---------------------------------------------------------------------- */
+
+.transcript-search { margin-bottom: 16px; }
+
+.transcript { display: flex; flex-direction: column; gap: 16px; max-height: 520px; overflow-y: auto; }
+
+.transcript-segment { display: flex; gap: 14px; }
+.transcript-segment__time {
+  background: none;
+  border: none;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 12.5px;
+  color: var(--navy-800);
+  flex-shrink: 0;
+  padding: 2px 0;
+  height: fit-content;
+}
+.transcript-segment__time:hover { color: var(--gold-600); }
+.transcript-segment__text { font-size: 14px; line-height: 1.65; color: var(--text-primary); }
+.transcript-segment__text mark { background: var(--gold-100); color: var(--text-primary); border-radius: 2px; }
+
+.transcript-raw { font-size: 14px; line-height: 1.75; color: var(--text-primary); white-space: pre-line; }
+.transcript-empty, .summary-empty { font-size: 13.5px; color: var(--text-muted); }
+
+/* ---- Topics --------------------------------------------------------------------------- */
+
+.topic-list { display: flex; flex-direction: column; gap: 2px; }
+
+.topic-item {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 9px 8px;
+  transition: background var(--duration) var(--ease);
+}
+.topic-item:hover { background: var(--navy-050); }
+.topic-item__time {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--navy-800);
+  min-width: 44px;
+  flex-shrink: 0;
+}
+.topic-item__label { font-size: 13.5px; color: var(--text-primary); }
+.topic-item--empty { color: var(--text-muted); font-size: 13px; padding: 9px 8px; }
+.topic-item--empty:hover { background: none; }
+
+/* ---- Summary -------------------------------------------------------------------------- */
+
+.summary-text { font-size: 14px; line-height: 1.7; color: var(--text-primary); margin-bottom: 14px; }
+.summary-subheading { font-size: 13px; margin-bottom: 8px; }
+.summary-points { display: flex; flex-direction: column; gap: 8px; padding-left: 18px; list-style: disc; }
+.summary-points li { font-size: 13.5px; line-height: 1.6; color: var(--text-primary); }
+
+/* ---- Responsive ------------------------------------------------------------------------- */
+
+@media (max-width: 992px) {
+  .lecture-detail-grid { grid-template-columns: 1fr; }
+  .transcript { max-height: none; }
+}
+
+@media (max-width: 480px) {
+  .audio-player { flex-wrap: wrap; }
+  .audio-player__timeline { order: 3; flex-basis: 100%; }
+  .audio-player__speed { margin-left: auto; }
+}

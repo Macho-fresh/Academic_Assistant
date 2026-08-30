@@ -1,0 +1,484 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+  {{ lecture.title|default:"Lecture" }} — Academic Assistant
+{% endblock %}
+
+{% block body_class %}app-body{% endblock %}
+
+{% block extra_css %}
+  <link
+    rel="stylesheet"
+    href="{% static 'css/lecture_detail.css' %}"
+  >
+{% endblock %}
+
+
+{% block content %}
+
+{% with active_nav="lectures" %}
+  {% include "partials/sidebar.html" %}
+{% endwith %}
+
+
+<div class="app-shell">
+
+  {% include "partials/topbar.html" with page_title="Lecture" %}
+
+
+  <main class="app-main">
+
+
+    <!-- ===============================
+         BACK LINK
+    ================================ -->
+
+    {% if lecture.course %}
+      <a
+        href="{% url 'course_detail' lecture.course.id %}"
+        class="back-link"
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 14 14"
+          fill="none"
+        >
+          <path
+            d="M8.5 2.5L3.5 7L8.5 11.5"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+
+        Back to Course
+      </a>
+
+    {% else %}
+
+      <a
+        href="{% url 'lectures' %}"
+        class="back-link"
+      >
+        Back to Lectures
+      </a>
+
+    {% endif %}
+
+
+    <!-- ===============================
+         HEADER
+    ================================ -->
+
+    <div class="page-header page-header--row">
+
+      <div class="page-header__text">
+
+        {% if lecture.course %}
+          <span class="eyebrow">
+            {{ lecture.course.course_code }}
+          </span>
+        {% endif %}
+
+
+        <h1 class="page-header__title">
+          {{ lecture.title }}
+        </h1>
+
+
+        <p class="page-header__subtitle">
+
+          {% if lecture.created_at %}
+            {{ lecture.created_at|date:"F j, Y" }}
+          {% endif %}
+
+          {% if lecture.lecturer %}
+            · {{ lecture.lecturer }}
+          {% endif %}
+
+        </p>
+
+      </div>
+
+
+      <div class="page-header__actions">
+
+        {% include "partials/status_badge.html" with status=lecture.status %}
+
+      </div>
+
+    </div>
+
+
+    <!-- ===============================
+         PROCESSING STATUS
+    ================================ -->
+
+    {% if lecture.status == "failed" %}
+
+      <section class="card processing-card processing-card--failed">
+
+        <h3 class="card__title">
+          Lecture processing failed.
+        </h3>
+
+        <p class="card__subtitle">
+          Something went wrong while processing this recording.
+        </p>
+
+        <form
+            method="post"
+            action="{% url 'retry_processing' lecture.id %}"
+          >
+            {% csrf_token %}
+
+            <button
+                type="submit"
+                class="btn btn--primary"
+            >
+                Retry Processing
+            </button>
+        </form>
+
+      </section>
+
+
+    {% elif lecture.status == "processing" %}
+
+      <section class="card processing-card">
+
+        <h3 class="card__title">
+          Processing Lecture
+        </h3>
+
+        <ul class="processing-steps">
+
+          <li class="processing-step processing-step--done">
+            Audio uploaded
+          </li>
+
+          <li class="processing-step processing-step--active">
+            Generating transcript
+          </li>
+
+          <li class="processing-step processing-step--pending">
+            Indexing topics
+          </li>
+
+          <li class="processing-step processing-step--pending">
+            Generating summary
+          </li>
+
+        </ul>
+
+      </section>
+
+    {% endif %}
+
+
+    <!-- ===============================
+         AUDIO PLAYER
+    ================================ -->
+
+    {% if lecture.audio_file %}
+  <section class="card lecture-audio">
+
+    <audio
+      id="lectureAudio"
+      controls
+      preload="metadata"
+      src="{{ lecture.audio_file.url }}"
+      style="width: 100%;"
+    >
+      Your browser does not support the audio element.
+    </audio>
+
+  </section>
+
+
+    {% else %}
+
+      <section class="card">
+
+        <p class="lecture-audio-empty">
+          Audio is not available for this lecture yet.
+        </p>
+
+      </section>
+
+    {% endif %}
+
+
+
+    <!-- ===============================
+         CONTENT GRID
+    ================================ -->
+
+    <div class="lecture-detail-grid">
+
+
+      <!-- ===============================
+           TRANSCRIPT
+      ================================ -->
+
+      <section class="card">
+
+        <div class="card__header">
+
+          <div>
+
+            <h3 class="card__title">
+              Transcript
+            </h3>
+
+            <p class="card__subtitle">
+              Click any timestamp to jump the audio there.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <label
+          class="search-bar transcript-search"
+          for="transcriptSearch"
+        >
+
+          <span
+            class="search-bar__icon"
+            aria-hidden="true"
+          >
+
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+            >
+              <circle
+                cx="7.2"
+                cy="7.2"
+                r="5"
+                stroke="currentColor"
+                stroke-width="1.4"
+              />
+
+              <path
+                d="M11 11L14 14"
+                stroke="currentColor"
+                stroke-width="1.4"
+                stroke-linecap="round"
+              />
+            </svg>
+
+          </span>
+
+
+          <input
+            type="search"
+            id="transcriptSearch"
+            class="search-bar__input"
+            placeholder="Search transcript..."
+          >
+
+        </label>
+
+
+
+        <div
+          class="transcript"
+          id="transcript"
+        >
+
+
+          {% if transcript_segments %}
+
+            {% for segment in transcript_segments %}
+
+              <div class="transcript-segment">
+
+                <button
+                  type="button"
+                  class="transcript-segment__time"
+                  data-start-seconds="{{ segment.start_seconds }}"
+                >
+                  [{{ segment.start_time }}]
+                </button>
+
+
+                <p class="transcript-segment__text">
+                  {{ segment.text }}
+                </p>
+
+              </div>
+
+            {% endfor %}
+
+
+          {% elif lecture.transcript %}
+
+            <p class="transcript-raw">
+              {{ lecture.transcript }}
+            </p>
+
+
+          {% else %}
+
+            <p class="transcript-empty">
+
+              {% if lecture.status == "pending" %}
+                Transcript has not been generated yet.
+              {% elif lecture.status == "processing" %}
+                Transcript is being generated.
+              {% elif lecture.status == "failed" %}
+                Transcript generation failed.
+              {% else %}
+                No transcript available.
+              {% endif %}
+
+            </p>
+
+          {% endif %}
+
+        </div>
+
+      </section>
+
+
+
+      <!-- ===============================
+           RIGHT SIDE
+      ================================ -->
+
+      <div class="lecture-detail-side">
+
+
+        <!-- TOPICS -->
+
+        <section class="card">
+
+          <div class="card__header">
+
+            <h3 class="card__title">
+              Topics
+            </h3>
+
+          </div>
+
+
+          <ul class="topic-list">
+
+            {% for segment in topic_segments %}
+
+              <li>
+
+                <button
+                  type="button"
+                  class="topic-item"
+                  data-start-seconds="{{ segment.start_seconds }}"
+                >
+
+                  <span class="topic-item__time">
+                    {{ segment.start_time }}
+                  </span>
+
+                  <span class="topic-item__label">
+                    {{ segment.topic_label }}
+                  </span>
+
+                </button>
+
+              </li>
+
+
+            {% empty %}
+
+              <li class="topic-item topic-item--empty">
+                Topics will appear once processing is complete.
+              </li>
+
+            {% endfor %}
+
+          </ul>
+
+        </section>
+
+
+
+        <!-- SUMMARY -->
+
+        <section class="card">
+
+          <div class="card__header">
+
+            <h3 class="card__title">
+              Lecture Summary
+            </h3>
+
+          </div>
+
+
+          {% if summary and summary.summary_text %}
+
+            <p class="summary-text">
+              {{ summary.summary_text }}
+            </p>
+
+
+            {% if summary.key_points %}
+
+              <h4 class="summary-subheading">
+                Key Points
+              </h4>
+
+
+              <ul class="summary-points">
+
+                {% for point in summary.key_points %}
+
+                  <li>
+                    {{ point }}
+                  </li>
+
+                {% endfor %}
+
+              </ul>
+
+            {% endif %}
+
+
+          {% else %}
+
+            <p class="summary-empty">
+              Summary has not been generated yet.
+            </p>
+
+          {% endif %}
+
+        </section>
+
+
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+
+{% endblock %}
+
+
+
+{% block extra_js %}
+
+  <script
+    src="{% static 'js/lecture_detail.js' %}"
+    defer
+  ></script>
+
+{% endblock %}

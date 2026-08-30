@@ -1,0 +1,406 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+  {{ course.course_code }} — {{ course.course_title }} — Academic Assistant
+{% endblock %}
+
+{% block body_class %}app-body{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'accounts/css/course_detail.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{% with active_nav="courses" %}
+  {% include "partials/sidebar.html" %}
+{% endwith %}
+
+<div class="app-shell">
+
+  {% include "partials/topbar.html" with page_title=course.course_code %}
+
+  <main class="app-main">
+
+    <a href="{% url 'courses' %}" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path
+          d="M8.5 2.5L3.5 7L8.5 11.5"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+
+      Back to Courses
+    </a>
+
+
+    <div class="page-header page-header--row">
+
+      <div class="page-header__text">
+
+        <span class="eyebrow">
+          {{ course.course_code }}
+        </span>
+
+        <h1 class="page-header__title">
+          {{ course.course_title }}
+        </h1>
+
+        <p class="page-header__subtitle">
+
+          {% if course.lecturer %}
+            Lecturer:
+            {{ course.lecturer.get_full_name|default:course.lecturer.username }}
+          {% endif %}
+
+          {% if course.department %}
+            · {{ course.department }}
+          {% endif %}
+
+        </p>
+
+      </div>
+
+
+      {% if request.user.role == "lecturer" %}
+
+        <div class="page-header__actions">
+
+          <a
+            href="{% url 'upload_lecture' %}?course={{ course.id }}"
+            class="btn btn--ghost"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path
+                d="M8 10.5V2.5M8 2.5L5 5.5M8 2.5L11 5.5"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+
+              <path
+                d="M2.5 10.5V12.5C2.5 13.05 2.95 13.5 3.5 13.5H12.5C13.05 13.5 13.5 13.05 13.5 12.5V10.5"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+            </svg>
+
+            Upload Lecture
+          </a>
+
+
+          <a
+            href="{% url 'record_lecture' %}?course={{ course.id }}"
+            class="btn btn--primary"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle
+                cx="8"
+                cy="8"
+                r="5.5"
+                stroke="currentColor"
+                stroke-width="1.5"
+              />
+
+              <circle
+                cx="8"
+                cy="8"
+                r="2.4"
+                fill="currentColor"
+              />
+            </svg>
+
+            Start Recording
+          </a>
+
+        </div>
+
+      {% endif %}
+
+    </div>
+
+
+    <section class="stat-grid">
+
+      <div class="stat-tile">
+        <span class="stat-tile__value">
+          {{ total_lectures }}
+        </span>
+
+        <span class="stat-tile__label">
+          Lectures
+        </span>
+      </div>
+
+
+      <div class="stat-tile">
+        <span class="stat-tile__value">
+          {{ total_recorded }}
+        </span>
+
+        <span class="stat-tile__label">
+          Recorded
+        </span>
+      </div>
+
+
+      <div class="stat-tile">
+        <span class="stat-tile__value">
+
+          {% if last_lecture_date %}
+            {{ last_lecture_date|date:"M d" }}
+          {% else %}
+            —
+          {% endif %}
+
+        </span>
+
+        <span class="stat-tile__label">
+          Last Lecture
+        </span>
+      </div>
+
+
+      <div class="stat-tile">
+        <span class="stat-tile__value">
+          {{ processed_count }}
+        </span>
+
+        <span class="stat-tile__label">
+          Processed
+        </span>
+      </div>
+
+    </section>
+
+
+    <div class="course-detail-grid">
+
+      <section class="card">
+
+        <div class="card__header">
+          <div>
+            <h3 class="card__title">
+              Lectures
+            </h3>
+
+            <p class="card__subtitle">
+              Recordings from this course.
+            </p>
+          </div>
+        </div>
+
+
+        {% if lectures %}
+
+          <div class="lecture-grid">
+
+            {% for lecture in lectures %}
+
+              <div class="card lecture-card-item">
+
+                {% include "partials/lecture_card.html" with lecture=lecture show_checklist=True show_action=True show_lecturer=False %}
+
+              </div>
+
+            {% endfor %}
+
+          </div>
+
+        {% else %}
+
+          <div class="empty-state">
+
+            <span class="empty-state__icon" aria-hidden="true">
+
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <rect
+                  x="3"
+                  y="5"
+                  width="18"
+                  height="14"
+                  rx="2"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                />
+
+                <path
+                  d="M8 10H16M8 14H13"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
+              </svg>
+
+            </span>
+
+            <h3 class="empty-state__title">
+              No lectures have been recorded for this course yet.
+            </h3>
+
+            {% if request.user.role == "lecturer" %}
+
+              <p class="empty-state__desc">
+                Start your first recording or upload an existing lecture.
+              </p>
+
+              <div class="empty-state__actions">
+
+                <a
+                  href="{% url 'upload_lecture' %}?course={{ course.id }}"
+                  class="btn btn--ghost"
+                >
+                  Upload Lecture
+                </a>
+
+                <a
+                  href="{% url 'record_lecture' %}?course={{ course.id }}"
+                  class="btn btn--primary"
+                >
+                  Start Recording
+                </a>
+
+              </div>
+
+            {% else %}
+
+              <p class="empty-state__desc">
+                No lecture recordings are available yet.
+              </p>
+
+            {% endif %}
+
+          </div>
+
+        {% endif %}
+
+      </section>
+
+
+      <section class="card">
+
+        <div class="card__header">
+          <div>
+            <h3 class="card__title">
+              Course Information
+            </h3>
+          </div>
+        </div>
+
+
+        <div class="info-grid">
+
+          <div class="info-item">
+            <span class="info-item__label">
+              Course Code
+            </span>
+
+            <span class="info-item__value">
+              {{ course.course_code }}
+            </span>
+          </div>
+
+
+          <div class="info-item">
+            <span class="info-item__label">
+              Course Title
+            </span>
+
+            <span class="info-item__value">
+              {{ course.course_title }}
+            </span>
+          </div>
+
+
+          {% if course.lecturer %}
+
+            <div class="info-item">
+
+              <span class="info-item__label">
+                Lecturer
+              </span>
+
+              <span class="info-item__value">
+                {{ course.lecturer.get_full_name|default:course.lecturer.username }}
+              </span>
+
+            </div>
+
+          {% endif %}
+
+
+          {% if course.department %}
+
+            <div class="info-item">
+
+              <span class="info-item__label">
+                Department
+              </span>
+
+              <span class="info-item__value">
+                {{ course.department }}
+              </span>
+
+            </div>
+
+          {% endif %}
+
+
+          {% if course.academic_session %}
+
+            <div class="info-item">
+
+              <span class="info-item__label">
+                Academic Session
+              </span>
+
+              <span class="info-item__value">
+                {{ course.academic_session }}
+              </span>
+
+            </div>
+
+          {% endif %}
+
+
+          {% if course.semester %}
+
+            <div class="info-item">
+
+              <span class="info-item__label">
+                Semester
+              </span>
+
+              <span class="info-item__value">
+                {{ course.get_semester_display }}
+              </span>
+
+            </div>
+
+          {% endif %}
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+  <script
+    src="{% static 'accounts/js/course_detail.js' %}"
+    defer
+  ></script>
+{% endblock %}

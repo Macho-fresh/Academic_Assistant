@@ -1,0 +1,26 @@
+/* ==========================================================================
+   Course Detail — page-specific styles.
+   Shared shell, card, stat-grid, info-grid, back-link, eyebrow, empty-state,
+   and lecture-card component all live in base.css.
+   ========================================================================== */
+
+.course-detail-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.empty-state__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+/* ---- Responsive ------------------------------------------------------------------ */
+
+@media (max-width: 992px) {
+  .course-detail-grid { grid-template-columns: 1fr; }
+}

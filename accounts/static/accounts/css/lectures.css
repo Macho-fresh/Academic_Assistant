@@ -1,0 +1,27 @@
+/* ==========================================================================
+   My Lectures — page-specific styles.
+   Shared shell, cards, search-bar/filter-select, empty-state, and
+   lecture-card component all live in base.css.
+   ========================================================================== */
+
+.lecture-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.lecture-card-item .lecture-card { align-items: flex-start; }
+
+/* ---- Responsive ------------------------------------------------------------------ */
+
+@media (max-width: 768px) {
+  .lecture-toolbar { flex-direction: column; align-items: stretch; }
+  .filter-row { width: 100%; }
+  .filter-select { flex: 1; min-width: 0; }
+}
+
+@media (max-width: 480px) {
+  .lecture-card-item .lecture-card { flex-direction: column; }
+  .lecture-card__side { flex-direction: row; align-items: center; justify-content: space-between; width: 100%; }
+}

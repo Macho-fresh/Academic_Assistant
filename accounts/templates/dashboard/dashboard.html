@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dashboard — Academic Assistant{% endblock %}
+{% block body_class %}app-body{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'accounts/css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+{% with active_nav="dashboard" %}
+  {% include "partials/sidebar.html" %}
+{% endwith %}
+
+<div class="app-shell">
+  {% include "partials/topbar.html" with page_title="Dashboard" %}
+
+  <main class="app-main">
+
+    <div class="page-header page-header--row">
+      <div class="page-header__text">
+        <h1 class="page-header__title">Good morning, {{ user.first_name|default:"Student" }}</h1>
+        <p class="page-header__subtitle">Here's what's happening with your academics today.</p>
+      </div>
+      <div class="page-header__actions">
+        <a href="#" class="btn btn--ghost" data-action-placeholder="upload-lecture">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 10.5V2.5M8 2.5L5 5.5M8 2.5L11 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 10.5V12.5C2.5 13.05 2.95 13.5 3.5 13.5H12.5C13.05 13.5 13.5 13.05 13.5 12.5V10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Upload Lecture
+        </a>
+        <a href="{% url 'record_lecture' %}" class="btn btn--primary" data-action-placeholder="start-recording">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="8" r="2.4" fill="currentColor"/></svg>
+          Start Recording
+        </a>
+      </div>
+    </div>
+
+    <!-- Academic overview: pass total_lectures, total_courses, hours_recorded,
+         classes_today from the view; sensible placeholders shown until then. -->
+    <section class="stat-grid">
+      <div class="stat-tile">
+        <span class="stat-tile__value">{{ total_lectures|default:"24" }}</span>
+        <span class="stat-tile__label">Total Lectures</span>
+      </div>
+      <div class="stat-tile">
+        <span class="stat-tile__value">{{ total_courses|default:"6" }}</span>
+        <span class="stat-tile__label">Courses</span>
+      </div>
+      <div class="stat-tile">
+        <span class="stat-tile__value">{{ hours_recorded|default:"18.5h" }}</span>
+        <span class="stat-tile__label">Recorded</span>
+      </div>
+      <div class="stat-tile">
+        <span class="stat-tile__value">{{ classes_today|default:"3" }}</span>
+        <span class="stat-tile__label">Classes Today</span>
+      </div>
+    </section>
+
+    <div class="dashboard-grid">
+
+      <section class="card">
+        <div class="card__header">
+          <div>
+            <h3 class="card__title">Today's Schedule</h3>
+            <p class="card__subtitle">Your classes for today.</p>
+          </div>
+          <a href="{% url 'timetable' %}" class="card__link">View Timetable →</a>
+        </div>
+
+        <ul class="schedule-list">
+          {% for entry in todays_schedule %}
+            <li class="schedule-item">
+              <span class="schedule-item__time">{{ entry.time }}</span>
+              <span class="schedule-item__info">
+                <span class="schedule-item__course">{{ entry.course_code }} · {{ entry.course_title }}</span>
+                {% if entry.location %}<span class="schedule-item__location">{{ entry.location }}</span>{% endif %}
+              </span>
+            </li>
+          {% empty %}
+            <li class="schedule-item schedule-item--example">
+              <span class="schedule-item__time">09:00 AM</span>
+              <span class="schedule-item__info">
+                <span class="schedule-item__course">COS 431 · Compiler Construction</span>
+                <span class="schedule-item__location">Room 204</span>
+              </span>
+            </li>
+            <li class="schedule-item schedule-item--example">
+              <span class="schedule-item__time">11:00 AM</span>
+              <span class="schedule-item__info">
+                <span class="schedule-item__course">COS 451 · Artificial Intelligence</span>
+                <span class="schedule-item__location">ICT Building</span>
+              </span>
+            </li>
+            <li class="schedule-item schedule-item--example">
+              <span class="schedule-item__time">02:00 PM</span>
+              <span class="schedule-item__info">
+                <span class="schedule-item__course">COS 411 · Software Engineering</span>
+                <span class="schedule-item__location">Room 105</span>
+              </span>
+            </li>
+          {% endfor %}
+        </ul>
+      </section>
+
+      <section class="card">
+        <div class="card__header">
+          <div>
+            <h3 class="card__title">Recent Lectures</h3>
+            <p class="card__subtitle">Your latest recordings.</p>
+          </div>
+          <a href="{% url 'lectures' %}" class="card__link">View All Lectures →</a>
+        </div>
+
+        <div class="lecture-list">
+          {% for lecture in recent_lectures %}
+            {% include "partials/lecture_card.html" with lecture=lecture show_checklist=False show_action=False %}
+          {% empty %}
+            <article class="lecture-card">
+              <div class="lecture-card__main">
+                <h4 class="lecture-card__title">Lexical Analysis</h4>
+                <p class="lecture-card__course">COS 431</p>
+                <p class="lecture-card__meta">Aug 28, 2026 • 1h 12m</p>
+              </div>
+              <div class="lecture-card__side">
+                <span class="badge badge--success">
+                  <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 5.8L4 8.3L9.5 2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Processed
+                </span>
+              </div>
+            </article>
+            <article class="lecture-card">
+              <div class="lecture-card__main">
+                <h4 class="lecture-card__title">Introduction to Neural Networks</h4>
+                <p class="lecture-card__course">COS 451</p>
+                <p class="lecture-card__meta">Aug 27, 2026 • 58m</p>
+              </div>
+              <div class="lecture-card__side">
+                <span class="badge badge--success">
+                  <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 5.8L4 8.3L9.5 2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Processed
+                </span>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      </section>
+
+    </div>
+
+    <section class="card reminders-card">
+      <div class="card__header">
+        <div>
+          <h3 class="card__title">Upcoming &amp; Reminders</h3>
+          <p class="card__subtitle">Don't miss what's next.</p>
+        </div>
+      </div>
+
+      <ul class="reminder-list">
+        {% for reminder in reminders %}
+          <li class="reminder-item">
+            <span class="reminder-item__icon" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 4V8L10.5 9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/></svg>
+            </span>
+            <span>{{ reminder.text }}</span>
+          </li>
+        {% empty %}
+          <li class="reminder-item">
+            <span class="reminder-item__icon" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 4V8L10.5 9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/></svg>
+            </span>
+            <span>COS 451 assignment is due tomorrow at 11:59 PM.</span>
+          </li>
+          <li class="reminder-item">
+            <span class="reminder-item__icon" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 4V8L10.5 9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/></svg>
+            </span>
+            <span>Your next class, COS 431, starts in 25 minutes.</span>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+
+  </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/dashboard.js' %}" defer></script>
+{% endblock %}

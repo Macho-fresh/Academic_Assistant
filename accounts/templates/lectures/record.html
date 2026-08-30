@@ -1,0 +1,527 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Record Lecture — Academic Assistant{% endblock %}
+{% block body_class %}app-body{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'accounts/css/recording.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{% with active_nav="lectures" %}
+  {% include "partials/sidebar.html" %}
+{% endwith %}
+
+<div class="app-shell">
+
+  {% include "partials/topbar.html" with page_title="Record Lecture" %}
+
+  <main class="app-main app-main--record">
+
+    {% if selected_course %}
+
+      <a
+        href="{% url 'course_detail' selected_course.id %}"
+        class="back-link"
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 14 14"
+          fill="none"
+        >
+          <path
+            d="M8.5 2.5L3.5 7L8.5 11.5"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+
+        Back to Course
+      </a>
+
+    {% else %}
+
+      <a
+        href="{% url 'lectures' %}"
+        class="back-link"
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 14 14"
+          fill="none"
+        >
+          <path
+            d="M8.5 2.5L3.5 7L8.5 11.5"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+
+        Back to Lectures
+      </a>
+
+    {% endif %}
+
+
+    <div class="page-header">
+
+      <h1 class="page-header__title">
+        Record Lecture
+      </h1>
+
+      <p class="page-header__subtitle">
+        Record your lecture and process it into a searchable
+        transcript, topics, and summary.
+      </p>
+
+    </div>
+
+
+    {% if request.user.role == "lecturer" %}
+
+      <form
+        method="post"
+        action="{% url 'record_lecture' %}"
+        enctype="multipart/form-data"
+        id="recordingForm"
+      >
+        {% csrf_token %}
+
+
+        <section class="card">
+
+          <div class="card__header">
+            <div>
+              <h3 class="card__title">
+                Lecture Information
+              </h3>
+            </div>
+          </div>
+
+
+          <div class="field">
+
+            <label
+              class="field__label"
+              for="id_lecture_title"
+            >
+              Lecture Title
+            </label>
+
+            <input
+              class="field__input"
+              type="text"
+              id="id_lecture_title"
+              name="title"
+              placeholder="e.g. Lexical Analysis"
+              value="{{ lecture_title|default:'' }}"
+              required
+            >
+
+            <span
+              class="field__error"
+              id="titleError"
+              hidden
+            >
+              Please enter a lecture title.
+            </span>
+
+          </div>
+
+
+          <div class="field">
+
+            <label
+              class="field__label"
+              for="id_lecture_course"
+            >
+              Course
+            </label>
+
+
+            {% if selected_course %}
+
+              <input
+                class="field__input"
+                type="text"
+                value="{{ selected_course.course_code }} — {{ selected_course.course_title }}"
+                readonly
+              >
+
+              <input
+                type="hidden"
+                name="course"
+                value="{{ selected_course.id }}"
+              >
+
+            {% else %}
+
+              <select
+                class="field__input"
+                id="id_lecture_course"
+                name="course"
+                required
+              >
+
+                <option value="">
+                  Select a course
+                </option>
+
+                {% for course in courses %}
+
+                  <option value="{{ course.id }}">
+                    {{ course.course_code }}
+                    —
+                    {{ course.course_title }}
+                  </option>
+
+                {% empty %}
+
+                  <option value="" disabled>
+                    No courses available
+                  </option>
+
+                {% endfor %}
+
+              </select>
+
+              <span
+                class="field__error"
+                id="courseError"
+                hidden
+              >
+                Please select a course.
+              </span>
+
+            {% endif %}
+
+          </div>
+
+        </section>
+
+
+        <section
+          class="card recorder"
+          id="recorder"
+          data-state="permission"
+        >
+
+
+          <!-- MICROPHONE PERMISSION -->
+
+          <div class="recorder-panel recorder-panel--permission">
+
+            <div
+              class="recorder-icon"
+              aria-hidden="true"
+            >
+
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 28 28"
+                fill="none"
+              >
+
+                <rect
+                  x="10"
+                  y="3"
+                  width="8"
+                  height="14"
+                  rx="4"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                />
+
+                <path
+                  d="M6.5 13.5C6.5 18 9.9 21 14 21C18.1 21 21.5 18 21.5 13.5"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                  stroke-linecap="round"
+                />
+
+                <path
+                  d="M14 21V25"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                  stroke-linecap="round"
+                />
+
+              </svg>
+
+            </div>
+
+            <p class="recorder-message">
+              Microphone access is required to record this lecture.
+            </p>
+
+            <button
+              type="button"
+              class="btn btn--primary"
+              id="requestMicBtn"
+            >
+              Allow Microphone
+            </button>
+
+            <p
+              class="form-errors"
+              id="micDeniedMessage"
+              hidden
+            >
+              Microphone access was denied.
+              Enable it in your browser's site settings,
+              then reload this page.
+            </p>
+
+          </div>
+
+
+          <!-- ACTIVE RECORDER -->
+
+          <div class="recorder-panel recorder-panel--active">
+
+            <div
+              class="recorder-status"
+              id="recorderStatus"
+            >
+
+              <span
+                class="recorder-dot"
+                id="recorderDot"
+                aria-hidden="true"
+              ></span>
+
+              <span id="recorderStatusText">
+                Ready to record
+              </span>
+
+            </div>
+
+
+            <canvas
+              class="recorder-visualizer"
+              id="recorderVisualizer"
+              width="640"
+              height="120"
+              aria-hidden="true"
+            ></canvas>
+
+
+            <div
+              class="recorder-timer"
+              id="recorderTimer"
+            >
+              00:00:00
+            </div>
+
+
+            <div class="recorder-controls">
+
+              <button
+                type="button"
+                class="btn btn--primary btn--record"
+                id="startBtn"
+              >
+                Start Recording
+              </button>
+
+
+              <button
+                type="button"
+                class="btn btn--ghost btn--record"
+                id="pauseBtn"
+                hidden
+              >
+                Pause
+              </button>
+
+
+              <button
+                type="button"
+                class="btn btn--ghost btn--record"
+                id="resumeBtn"
+                hidden
+              >
+                Resume
+              </button>
+
+
+              <button
+                type="button"
+                class="btn btn--danger-outline btn--record"
+                id="stopBtn"
+                hidden
+              >
+                Stop Recording
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <!-- REVIEW -->
+
+          <div class="recorder-panel recorder-panel--review">
+
+            <h3 class="recorder-review__title">
+              Review your recording
+            </h3>
+
+
+            <audio
+              class="recorder-review__player"
+              id="reviewPlayer"
+              controls
+            ></audio>
+
+
+            <dl class="recorder-review__meta">
+
+              <div>
+                <dt>Duration</dt>
+                <dd id="reviewDuration">
+                  00:00:00
+                </dd>
+              </div>
+
+
+              <div>
+                <dt>Lecture Title</dt>
+                <dd id="reviewTitle">
+                  —
+                </dd>
+              </div>
+
+
+              <div>
+                <dt>Course</dt>
+                <dd id="reviewCourse">
+                  —
+                </dd>
+              </div>
+
+            </dl>
+
+
+            <div class="recorder-controls">
+
+              <button
+                type="button"
+                class="btn btn--ghost"
+                id="discardBtn"
+              >
+                Discard
+              </button>
+
+
+              <button
+                type="submit"
+                class="btn btn--primary"
+                id="saveBtn"
+              >
+                Save &amp; Process
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <!-- UPLOADING -->
+
+          <div class="recorder-panel recorder-panel--uploading">
+
+            <span
+              class="recorder-spinner"
+              aria-hidden="true"
+            ></span>
+
+            <p id="uploadStatusText">
+              Uploading recording…
+            </p>
+
+          </div>
+
+
+          <!-- ERROR -->
+
+          <div class="recorder-panel recorder-panel--error">
+
+            <p
+              class="form-errors"
+              id="recorderErrorMessage"
+            >
+              Something went wrong.
+              Please try again.
+            </p>
+
+            <button
+              type="button"
+              class="btn btn--ghost"
+              id="errorRetryBtn"
+            >
+              Try Again
+            </button>
+
+          </div>
+
+        </section>
+
+      </form>
+
+
+    {% else %}
+
+      <section class="card">
+
+        <div class="empty-state">
+
+          <h3 class="empty-state__title">
+            Recording unavailable
+          </h3>
+
+          <p class="empty-state__desc">
+            Only lecturers can record or upload lecture recordings.
+          </p>
+
+          <a
+            href="{% url 'lectures' %}"
+            class="btn btn--ghost"
+          >
+            Back to Lectures
+          </a>
+
+        </div>
+
+      </section>
+
+    {% endif %}
+
+  </main>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+  {% if request.user.role == "lecturer" %}
+
+    <script
+      src="{% static 'accounts/js/recording.js' %}"
+      defer
+    ></script>
+
+  {% endif %}
+
+{% endblock %}

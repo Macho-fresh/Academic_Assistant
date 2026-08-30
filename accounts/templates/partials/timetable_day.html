@@ -1,0 +1,50 @@
+<div
+  class="timetable-day {% if day_label == today_name %}is-today{% endif %}"
+  data-day="{{ day_key }}"
+>
+  <div
+    class="timetable-day__header {% if day_label == today_name %}is-today{% endif %}"
+  >
+    {{ day_label|slice:":3" }}
+  </div>
+
+  <div class="timetable-day__body">
+
+    {% for entry in timetable_entries %}
+
+      {% if entry.day == day_key %}
+
+        <div
+          class="timetable-event {% cycle 'timetable-event--a' 'timetable-event--b' %}"
+          data-start="{{ entry.start_time|time:'H:i' }}"
+          data-end="{{ entry.end_time|time:'H:i' }}"
+        >
+
+          <span class="timetable-event__course">
+            {{ entry.course.course_code }}
+          </span>
+
+          <span class="timetable-event__title">
+            {{ entry.course.course_title }}
+          </span>
+
+          <span class="timetable-event__time">
+            {{ entry.start_time|time:"g:i A" }}
+            –
+            {{ entry.end_time|time:"g:i A" }}
+          </span>
+
+          {% if entry.venue %}
+            <span class="timetable-event__venue">
+              {{ entry.venue }}
+            </span>
+          {% endif %}
+
+        </div>
+
+      {% endif %}
+
+    {% endfor %}
+
+  </div>
+</div>

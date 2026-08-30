@@ -1,0 +1,328 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Add Class — Academic Assistant{% endblock %}
+{% block body_class %}app-body{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'accounts/css/add_class.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{% with active_nav="timetable" %}
+  {% include "partials/sidebar.html" %}
+{% endwith %}
+
+<div class="app-shell">
+
+  {% include "partials/topbar.html" with page_title="Add Class" %}
+
+  <main class="app-main app-main--form">
+
+    <a href="{% url 'timetable' %}" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path
+          d="M8.5 2.5L3.5 7L8.5 11.5"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+
+      Back to Timetable
+    </a>
+
+    <div class="page-header">
+      <h1 class="page-header__title">
+        Add Class
+      </h1>
+
+      <p class="page-header__subtitle">
+        Add a course to your weekly timetable and configure when it takes place.
+      </p>
+    </div>
+
+    <section class="card">
+
+      <form
+        method="POST"
+        action="{% url 'add_class' %}"
+        novalidate
+      >
+        {% csrf_token %}
+
+        <div class="field">
+
+          <label
+            class="field__label"
+            for="id_class_course"
+          >
+            Course
+          </label>
+
+          <select
+            class="field__input"
+            id="id_class_course"
+            name="course"
+            required
+          >
+            <option value="">
+              Select course
+            </option>
+
+            {% for course in courses %}
+              <option
+                value="{{ course.id }}"
+                {% if values.course == course.id|stringformat:"s" %}
+                  selected
+                {% endif %}
+              >
+                {{ course.course_code }}
+                —
+                {{ course.course_title }}
+              </option>
+
+            {% empty %}
+              <option value="" disabled>
+                No courses available
+              </option>
+            {% endfor %}
+
+          </select>
+
+        </div>
+
+
+        <div class="field">
+
+          <label
+            class="field__label"
+            for="id_class_day"
+          >
+            Day
+          </label>
+
+          <select
+            class="field__input"
+            id="id_class_day"
+            name="day"
+            required
+          >
+            <option value="">
+              Select day
+            </option>
+
+            <option
+              value="monday"
+              {% if values.day == "monday" %}selected{% endif %}
+            >
+              Monday
+            </option>
+
+            <option
+              value="tuesday"
+              {% if values.day == "tuesday" %}selected{% endif %}
+            >
+              Tuesday
+            </option>
+
+            <option
+              value="wednesday"
+              {% if values.day == "wednesday" %}selected{% endif %}
+            >
+              Wednesday
+            </option>
+
+            <option
+              value="thursday"
+              {% if values.day == "thursday" %}selected{% endif %}
+            >
+              Thursday
+            </option>
+
+            <option
+              value="friday"
+              {% if values.day == "friday" %}selected{% endif %}
+            >
+              Friday
+            </option>
+
+            <option
+              value="saturday"
+              {% if values.day == "saturday" %}selected{% endif %}
+            >
+              Saturday
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="field-grid-2">
+
+          <div class="field">
+
+            <label
+              class="field__label"
+              for="id_class_start"
+            >
+              Start Time
+            </label>
+
+            <input
+              class="field__input"
+              type="time"
+              id="id_class_start"
+              name="start_time"
+              value="{{ values.start_time|default:'' }}"
+              required
+            >
+
+          </div>
+
+
+          <div class="field">
+
+            <label
+              class="field__label"
+              for="id_class_end"
+            >
+              End Time
+            </label>
+
+            <input
+              class="field__input"
+              type="time"
+              id="id_class_end"
+              name="end_time"
+              value="{{ values.end_time|default:'' }}"
+              required
+            >
+
+          </div>
+
+        </div>
+
+
+        <div class="field">
+
+          <label
+            class="field__label"
+            for="id_class_venue"
+          >
+            Venue / Location
+            <span class="field__optional">
+              (optional)
+            </span>
+          </label>
+
+          <input
+            class="field__input"
+            type="text"
+            id="id_class_venue"
+            name="venue"
+            placeholder="e.g. Computer Science Lecture Hall"
+            value="{{ values.venue|default:'' }}"
+          >
+
+        </div>
+
+
+        <div class="field">
+
+          <label
+            class="field__label"
+            for="id_class_reminder"
+          >
+            Reminder Time
+          </label>
+
+          <select
+            class="field__input"
+            id="id_class_reminder"
+            name="reminder_time"
+          >
+
+            <option value="">
+              No reminder
+            </option>
+
+            <option
+              value="10"
+              {% if values.reminder_time == "10" %}
+                selected
+              {% endif %}
+            >
+              10 minutes before
+            </option>
+
+            <option
+              value="15"
+              {% if values.reminder_time == "15" %}
+                selected
+              {% endif %}
+            >
+              15 minutes before
+            </option>
+
+            <option
+              value="30"
+              {% if values.reminder_time == "30" %}
+                selected
+              {% endif %}
+            >
+              30 minutes before
+            </option>
+
+            <option
+              value="60"
+              {% if values.reminder_time == "60" %}
+                selected
+              {% endif %}
+            >
+              1 hour before
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="form-actions">
+
+          <a
+            href="{% url 'timetable' %}"
+            class="btn btn--ghost"
+          >
+            Cancel
+          </a>
+
+          <button
+            type="submit"
+            class="btn btn--primary"
+          >
+            Add Class
+          </button>
+
+        </div>
+
+      </form>
+
+    </section>
+
+  </main>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+  <script
+    src="{% static 'accounts/js/add_class.js' %}"
+    defer
+  ></script>
+{% endblock %}

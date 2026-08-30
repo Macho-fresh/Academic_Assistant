@@ -1,0 +1,320 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Add Course — Academic Assistant{% endblock %}
+{% block body_class %}app-body{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'accounts/css/add_course.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{% with active_nav="courses" %}
+  {% include "partials/sidebar.html" %}
+{% endwith %}
+
+<div class="app-shell">
+
+  {% include "partials/topbar.html" with page_title="Add Course" %}
+
+  <main class="app-main app-main--form">
+
+    <a href="{% url 'courses' %}" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path
+          d="M8.5 2.5L3.5 7L8.5 11.5"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+
+      Back to Courses
+    </a>
+
+    <div class="page-header">
+      <h1 class="page-header__title">
+        Add Course
+      </h1>
+
+      <p class="page-header__subtitle">
+        Add a course to your academic workspace.
+      </p>
+    </div>
+
+    <section class="card">
+
+      <form method="POST" action="{% url 'add_course' %}" novalidate>
+        {% csrf_token %}
+
+        {% if errors.non_field %}
+          <div class="form-errors">
+            {{ errors.non_field }}
+          </div>
+        {% endif %}
+
+        <div class="field-grid-2">
+
+          <div class="field">
+
+            <label
+              class="field__label"
+              for="id_course_code"
+            >
+              Course Code
+            </label>
+
+            <input
+              class="field__input {% if errors.course_code %}has-error{% endif %}"
+              type="text"
+              id="id_course_code"
+              name="course_code"
+              placeholder="e.g. COS 431"
+              value="{{ values.course_code|default:'' }}"
+              required
+            >
+
+            {% if errors.course_code %}
+              <span class="field__error is-visible">
+                {{ errors.course_code }}
+              </span>
+            {% endif %}
+
+          </div>
+
+
+          <div class="field">
+
+            <label
+              class="field__label"
+              for="id_academic_session"
+            >
+              Academic Session
+              <span class="field__optional">
+                (optional)
+              </span>
+            </label>
+
+            <input
+              class="field__input {% if errors.academic_session %}has-error{% endif %}"
+              type="text"
+              id="id_academic_session"
+              name="academic_session"
+              placeholder="e.g. 2026/2027"
+              value="{{ values.academic_session|default:'' }}"
+            >
+
+            {% if errors.academic_session %}
+              <span class="field__error is-visible">
+                {{ errors.academic_session }}
+              </span>
+            {% endif %}
+
+          </div>
+
+        </div>
+
+
+        <div class="field">
+
+          <label
+            class="field__label"
+            for="id_course_title"
+          >
+            Course Title
+          </label>
+
+          <input
+            class="field__input {% if errors.course_title %}has-error{% endif %}"
+            type="text"
+            id="id_course_title"
+            name="course_title"
+            placeholder="e.g. Compiler Construction"
+            value="{{ values.course_title|default:'' }}"
+            required
+          >
+
+          {% if errors.course_title %}
+            <span class="field__error is-visible">
+              {{ errors.course_title }}
+            </span>
+          {% endif %}
+
+        </div>
+
+
+        <div class="field">
+
+          <label
+            class="field__label"
+            for="id_lecturer"
+          >
+            Lecturer
+          </label>
+
+          {% if request.user.role == "lecturer" %}
+
+            <input
+              class="field__input"
+              type="text"
+              value="{{ request.user.get_full_name|default:request.user.username }}"
+              readonly
+            >
+
+            <span class="field__hint">
+              This course will be assigned to you automatically.
+            </span>
+
+          {% else %}
+
+            <select
+              class="field__input {% if errors.lecturer %}has-error{% endif %}"
+              id="id_lecturer"
+              name="lecturer"
+              required
+            >
+              <option value="">
+                Select lecturer
+              </option>
+
+              {% for lecturer in lecturers %}
+                <option
+                  value="{{ lecturer.id }}"
+                  {% if values.lecturer == lecturer.id|stringformat:"s" %}
+                    selected
+                  {% endif %}
+                >
+                  {% if lecturer.get_full_name %}
+                    {{ lecturer.get_full_name }}
+                  {% else %}
+                    {{ lecturer.username }}
+                  {% endif %}
+                </option>
+
+              {% empty %}
+                <option value="" disabled>
+                  No lecturers available
+                </option>
+              {% endfor %}
+
+            </select>
+
+            {% if errors.lecturer %}
+              <span class="field__error is-visible">
+                {{ errors.lecturer }}
+              </span>
+            {% endif %}
+
+          {% endif %}
+
+        </div>
+
+
+        <div class="field-grid-2">
+
+          <div class="field">
+
+            <label
+              class="field__label"
+              for="id_department"
+            >
+              Department
+              <span class="field__optional">
+                (optional)
+              </span>
+            </label>
+
+            <input
+              class="field__input"
+              type="text"
+              id="id_department"
+              name="department"
+              placeholder="e.g. Computer Science"
+              value="{{ values.department|default:'' }}"
+            >
+
+          </div>
+
+
+          <div class="field">
+
+            <label
+              class="field__label"
+              for="id_semester"
+            >
+              Semester
+            </label>
+
+            <select
+              class="field__input {% if errors.semester %}has-error{% endif %}"
+              id="id_semester"
+              name="semester"
+              required
+            >
+              <option value="">
+                Select semester
+              </option>
+
+              <option
+                value="first"
+                {% if values.semester == "first" %}selected{% endif %}
+              >
+                First Semester
+              </option>
+
+              <option
+                value="second"
+                {% if values.semester == "second" %}selected{% endif %}
+              >
+                Second Semester
+              </option>
+
+            </select>
+
+            {% if errors.semester %}
+              <span class="field__error is-visible">
+                {{ errors.semester }}
+              </span>
+            {% endif %}
+
+          </div>
+
+        </div>
+
+
+        <div class="form-actions">
+
+          <a
+            href="{% url 'courses' %}"
+            class="btn btn--ghost"
+          >
+            Cancel
+          </a>
+
+          <button
+            type="submit"
+            class="btn btn--primary"
+          >
+            Add Course
+          </button>
+
+        </div>
+
+      </form>
+
+    </section>
+
+  </main>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+  <script
+    src="{% static 'accounts/js/add_course.js' %}"
+    defer
+  ></script>
+{% endblock %}

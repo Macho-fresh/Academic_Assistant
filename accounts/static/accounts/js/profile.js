@@ -1,38 +1,10 @@
 /**
  * profile.js — frontend-only interactions for profile.html.
  * No backend update logic lives here: Django handles the actual save.
+ * Mobile sidebar toggling is handled globally by app-shell.js.
  */
 (function () {
   "use strict";
-
-  /* ---- Mobile sidebar toggle ------------------------------------------ */
-
-  var sidebar = document.getElementById("sidebar");
-  var openBtn = document.getElementById("sidebarOpen");
-  var closeBtn = document.getElementById("sidebarClose");
-  var backdrop = document.getElementById("sidebarBackdrop");
-
-  function openSidebar() {
-    if (!sidebar) return;
-    sidebar.classList.add("is-open");
-    if (backdrop) backdrop.classList.add("is-visible");
-    if (openBtn) openBtn.setAttribute("aria-expanded", "true");
-  }
-
-  function closeSidebar() {
-    if (!sidebar) return;
-    sidebar.classList.remove("is-open");
-    if (backdrop) backdrop.classList.remove("is-visible");
-    if (openBtn) openBtn.setAttribute("aria-expanded", "false");
-  }
-
-  if (openBtn) openBtn.addEventListener("click", openSidebar);
-  if (closeBtn) closeBtn.addEventListener("click", closeSidebar);
-  if (backdrop) backdrop.addEventListener("click", closeSidebar);
-
-  document.addEventListener("keydown", function (event) {
-    if (event.key === "Escape") closeSidebar();
-  });
 
   /* ---- Edit profile: toggle view / edit mode ---------------------------- */
 

@@ -1,0 +1,46 @@
+<article class="lecture-card">
+  <div class="lecture-card__main">
+    <h4 class="lecture-card__title">{{ lecture.title }}</h4>
+    <p class="lecture-card__course">{{ lecture.course_code }}{% if lecture.course_name %} — {{ lecture.course_name }}{% endif %}</p>
+    <p class="lecture-card__meta">
+      {{ lecture.date }} • {{ lecture.duration }}{% if show_lecturer and lecture.lecturer %} • {{ lecture.lecturer }}{% endif %}
+    </p>
+
+    {% if show_checklist %}
+      <ul class="lecture-card__checklist">
+        {% if lecture.status == "processing" %}
+          <li class="lecture-card__check lecture-card__check--processing">
+            <span class="lecture-card__progress"><span class="lecture-card__progress-fill"></span></span>
+            Processing transcript…
+          </li>
+        {% else %}
+          {% if lecture.transcript_ready %}
+            <li class="lecture-card__check lecture-card__check--done">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.6L5 9.6L11 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Transcript ready
+            </li>
+          {% endif %}
+          {% if lecture.topics_indexed %}
+            <li class="lecture-card__check lecture-card__check--done">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.6L5 9.6L11 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Topics indexed
+            </li>
+          {% endif %}
+          {% if lecture.summary_generated %}
+            <li class="lecture-card__check lecture-card__check--done">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.6L5 9.6L11 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Summary generated
+            </li>
+          {% endif %}
+        {% endif %}
+      </ul>
+    {% endif %}
+  </div>
+
+  <div class="lecture-card__side">
+    {% include "partials/status_badge.html" with status=lecture.status %}
+    {% if show_action %}
+      <a href="{% url 'lecture_detail' lecture.id %}" class="btn btn--ghost btn--sm" data-lecture-detail-placeholder="{{ lecture.id }}">View Lecture</a>
+    {% endif %}
+  </div>
+</article>
