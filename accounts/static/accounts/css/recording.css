@@ -77,6 +77,62 @@
   border-radius: var(--radius-md);
 }
 
+.recording-container {
+    width: 100%;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 32px;
+}
+
+.recording-layout {
+    display: grid;
+    grid-template-columns: minmax(320px, 0.8fr) minmax(520px, 1.6fr);
+    gap: 32px;
+    align-items: start;
+}
+
+.lecture-info-card,
+.recording-card {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.recording-card {
+    padding: 32px;
+}
+
+.recording-controls {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.recording-controls .start-btn {
+    grid-column: 1 / -1;
+}
+
+.recording-controls button {
+    width: 100%;
+}
+
+.waveform-container,
+#waveform,
+canvas {
+    width: 100%;
+    max-width: none;
+}
+
+@media (max-width: 1000px) {
+    .recording-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .recording-container {
+        padding: 20px;
+    }
+}
+
 .recorder-timer {
   font-family: var(--font-display);
   font-size: 40px;

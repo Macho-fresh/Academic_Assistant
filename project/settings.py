@@ -54,7 +54,8 @@ INSTALLED_APPS = [
     "lectures",
     "transcription",
     "indexing",
-    "timetable"
+    "timetable",
+    "summary"
 ]
 
 MIDDLEWARE = [

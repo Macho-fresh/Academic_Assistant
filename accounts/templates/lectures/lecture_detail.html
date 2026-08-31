@@ -10,7 +10,7 @@
 {% block extra_css %}
   <link
     rel="stylesheet"
-    href="{% static 'css/lecture_detail.css' %}"
+    href="{% static 'accounts/css/lecture_detail.css' %}"
   >
 {% endblock %}
 
@@ -106,9 +106,35 @@
 
       <div class="page-header__actions">
 
-        {% include "partials/status_badge.html" with status=lecture.status %}
+    {% include "partials/status_badge.html" with status=lecture.status %}
 
-      </div>
+
+    {% if lecture.status == "completed" %}
+
+        {% if request.user.role == "lecturer" and lecture.lecturer == request.user %}
+
+            <form
+                method="post"
+                action="{% url 'retry_processing' lecture.id %}"
+                class="reprocess-form"
+            >
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="btn btn--secondary"
+                    onclick="return confirm('Regenerate the transcript, topics, and summary for this lecture?');"
+                >
+                    Reprocess Lecture
+                </button>
+
+            </form>
+
+        {% endif %}
+
+    {% endif %}
+
+</div>
 
     </div>
 
@@ -477,7 +503,7 @@
 {% block extra_js %}
 
   <script
-    src="{% static 'js/lecture_detail.js' %}"
+    src="{% static 'accounts/js/lecture_detail.js' %}"
     defer
   ></script>
 
