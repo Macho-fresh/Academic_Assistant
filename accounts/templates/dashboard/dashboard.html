@@ -71,46 +71,69 @@
 
       {% if request.user.role == "lecturer" %}
 
-        <div class="page-header__actions">
+  <div class="page-header__actions">
+
+    <a
+      href="{% url 'upload_lecture' %}"
+      class="btn btn--ghost"
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 16 16"
+        fill="none"
+      >
+        <path
+          d="M8 10.5V2.5M8 2.5L5 5.5M8 2.5L11 5.5"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M2.5 10.5V12.5C2.5 13.05 2.95 13.5 3.5 13.5H12.5C13.05 13.5 13.5 13.05 13.5 12.5V10.5"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+        />
+      </svg>
+
+      Upload Lecture
+    </a>
 
 
-          <a
-            href="{% url 'record_lecture' %}"
-            class="btn btn--primary"
-          >
+    <a
+      href="{% url 'record_lecture' %}"
+      class="btn btn--primary"
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 16 16"
+        fill="none"
+      >
+        <circle
+          cx="8"
+          cy="8"
+          r="5.5"
+          stroke="currentColor"
+          stroke-width="1.5"
+        />
 
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-            >
+        <circle
+          cx="8"
+          cy="8"
+          r="2.4"
+          fill="currentColor"
+        />
+      </svg>
 
-              <circle
-                cx="8"
-                cy="8"
-                r="5.5"
-                stroke="currentColor"
-                stroke-width="1.5"
-              />
+      Start Recording
+    </a>
 
-              <circle
-                cx="8"
-                cy="8"
-                r="2.4"
-                fill="currentColor"
-              />
+  </div>
 
-            </svg>
-
-            Start Recording
-
-          </a>
-
-
-        </div>
-
-      {% endif %}
+{% endif %}
 
 
     </div>
@@ -386,153 +409,112 @@
 
     <section class="card reminders-card">
 
-
-      <div class="card__header">
-
+    <div class="card__header">
 
         <div>
 
-          <h3 class="card__title">
-            Upcoming &amp; Reminders
-          </h3>
+            <h3 class="card__title">
+                Upcoming &amp; Reminders
+            </h3>
 
-          <p class="card__subtitle">
-            Your next scheduled class.
-          </p>
+            <p class="card__subtitle">
+                Your next scheduled classes.
+            </p>
 
         </div>
 
 
         <a
-          href="{% url 'timetable' %}"
-          class="card__link"
+            href="{% url 'timetable' %}"
+            class="card__link"
         >
-          View Timetable →
+            View Timetable →
         </a>
 
-
-      </div>
-
+    </div>
 
 
-      <ul class="reminder-list">
+    <ul class="reminder-list">
 
+        {% for item in upcoming_classes %}
 
-        {% if next_class %}
+            <li class="reminder-item">
 
+                <span
+                    class="reminder-item__icon"
+                    aria-hidden="true"
+                >
 
-          <li class="reminder-item">
+                    <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                    >
 
+                        <path
+                            d="M8 4V8L10.5 9.5"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                        />
 
-            <span
-              class="reminder-item__icon"
-              aria-hidden="true"
-            >
+                        <circle
+                            cx="8"
+                            cy="8"
+                            r="6"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                        />
 
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-              >
-
-                <path
-                  d="M8 4V8L10.5 9.5"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                />
-
-                <circle
-                  cx="8"
-                  cy="8"
-                  r="6"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                />
-
-              </svg>
-
-            </span>
-
-
-
-            <div class="reminder-item__content">
-
-
-              <strong class="reminder-item__title">
-
-                {{ next_class.course.course_code }}
-
-                ·
-
-                {{ next_class.course.course_title }}
-
-              </strong>
-
-
-
-              {% if next_class_message %}
-
-                <span class="reminder-item__message">
-
-                  {{ next_class_message }}
+                    </svg>
 
                 </span>
 
-              {% endif %}
+
+                <span>
+
+                    <strong>
+                        {{ item.entry.course.course_code }}
+                    </strong>
+
+                    ·
+
+                    {{ item.entry.course.course_title }}
+
+                    —
+
+                    {{ item.datetime|date:"D, M j" }}
+
+                    at
+
+                    {{ item.entry.start_time|time:"g:i A" }}
 
 
+                    {% if item.entry.venue %}
 
-              <span class="reminder-item__meta">
+                        · {{ item.entry.venue }}
 
-                {{ next_class.day }}
+                    {% endif %}
 
-                at
+                </span>
 
-                {{ next_class.start_time|time:"g:i A" }}
-
-
-                {% if next_class.end_time %}
-
-                  – {{ next_class.end_time|time:"g:i A" }}
-
-                {% endif %}
+            </li>
 
 
-                {% if next_class.venue %}
+        {% empty %}
 
-                  · {{ next_class.venue }}
+            <li class="reminder-item reminder-item--empty">
 
-                {% endif %}
+                No upcoming classes.
 
+            </li>
 
-              </span>
+        {% endfor %}
 
+    </ul>
 
-            </div>
-
-
-          </li>
-
-
-        {% else %}
-
-
-          <li class="reminder-item reminder-item--empty">
-
-            No upcoming classes.
-
-          </li>
-
-
-        {% endif %}
-
-
-      </ul>
-
-
-    </section>
+</section>
 
 
   </main>

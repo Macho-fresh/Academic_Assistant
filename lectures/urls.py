@@ -9,5 +9,15 @@ urlpatterns = [
     "lecture/<int:lecture_id>/retry/",
     views.retry_processing,
     name="retry_processing"
-),
+    ),
+    path(
+    "lecture/<int:lecture_id>/delete/",
+    views.delete_lecture,
+    name="delete_lecture"
+    ),
+    path(
+    "upload-lecture/",
+    views.UploadLectureView.as_view(),
+    name="upload_lecture"
+    ),
 ]

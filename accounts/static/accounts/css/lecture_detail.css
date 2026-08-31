@@ -183,6 +183,21 @@
     margin: 0;
 }
 
+.btn--danger {
+    background: #fff;
+    color: #b42318;
+    border: 1px solid #f1b5b0;
+}
+
+.btn--danger:hover {
+    background: #fff4f3;
+    border-color: #e58f88;
+}
+
+.delete-lecture-form {
+    margin: 0;
+}
+
 .reprocess-form button {
     white-space: nowrap;
 }

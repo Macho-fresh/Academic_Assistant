@@ -34,6 +34,9 @@ class Lecture(models.Model):
     )
     lecturer = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+    duration_seconds = models.FloatField(
+    default=0
+    )
     
     def __str__(self):
         return f"{self.course.course_code} - {self.title}"

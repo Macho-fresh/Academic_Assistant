@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Upload Lecture — Academic Assistant
+{% endblock %}
+
+{% block body_class %}
+app-body
+{% endblock %}
+
+{% block extra_css %}
+
+  <link
+    rel="stylesheet"
+    href="{% static 'accounts/css/recording.css' %}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{% static 'accounts/css/upload_lecture.css' %}"
+  >
+
+{% endblock %}
+
+{% block content %}
+
+{% with active_nav="lectures" %}
+    {% include "partials/sidebar.html" %}
+{% endwith %}
+
+
+<div class="app-shell">
+
+    {% include "partials/topbar.html" with page_title="Upload Lecture" %}
+
+
+    <main class="app-main">
+
+    <div class="upload-page">
+
+        <div class="page-header">
+
+            <div class="page-header__text">
+
+                <span class="eyebrow">
+                    Lecture Processing
+                </span>
+
+                <h1 class="page-header__title">
+                    Upload Lecture
+                </h1>
+
+                <p class="page-header__subtitle">
+                    Upload an existing lecture recording and automatically
+                    generate its transcript, indexed topics and summary.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <section class="card upload-card">
+
+            <form
+                method="post"
+                enctype="multipart/form-data"
+                action="{% url 'upload_lecture' %}"
+                class="upload-form"
+            >
+
+                {% csrf_token %}
+
+
+                <div class="form-group">
+
+                    <label for="title">
+                        Lecture Title
+                    </label>
+
+                    <input
+                        type="text"
+                        id="title"
+                        name="title"
+                        class="form-control"
+                        placeholder="e.g. Lexical Analysis"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="course">
+                        Course
+                    </label>
+
+                    <select
+                        id="course"
+                        name="course"
+                        class="form-control"
+                        required
+                    >
+
+                        <option value="">
+                            Select a course
+                        </option>
+
+                        {% for course in courses %}
+
+                            <option
+                                value="{{ course.id }}"
+                                {% if selected_course and selected_course.id == course.id %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ course.course_code }}
+                                — {{ course.course_title }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Lecture Audio
+                    </label>
+
+                    <label
+                        class="upload-dropzone"
+                        for="audio_file"
+                    >
+
+                        <div>
+
+                            <div class="upload-dropzone__icon">
+
+                                <svg
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                >
+                                    <path
+                                        d="M12 16V4M12 4L7.5 8.5M12 4L16.5 8.5"
+                                        stroke="currentColor"
+                                        stroke-width="1.8"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    />
+
+                                    <path
+                                        d="M5 15V18C5 19.1 5.9 20 7 20H17C18.1 20 19 19.1 19 18V15"
+                                        stroke="currentColor"
+                                        stroke-width="1.8"
+                                        stroke-linecap="round"
+                                    />
+                                </svg>
+
+                            </div>
+
+                            <p class="upload-dropzone__title">
+                                Choose a lecture recording
+                            </p>
+
+                            <p class="upload-dropzone__text">
+                                Click to browse for an audio file.
+                            </p>
+
+                            <p class="upload-dropzone__hint">
+                                MP3, WAV, M4A, WEBM or OGG
+                            </p>
+
+                            <p
+                                class="upload-file-name"
+                                id="selectedFileName"
+                            >
+                                No file selected
+                            </p>
+
+                        </div>
+
+
+                        <input
+                            type="file"
+                            id="audio_file"
+                            name="audio_file"
+                            accept=".mp3,.wav,.m4a,.webm,.ogg,audio/*"
+                            required
+                        >
+
+                    </label>
+
+                </div>
+
+
+                <div class="upload-actions">
+
+                    <a
+                        href="{% url 'lectures' %}"
+                        class="btn btn--ghost"
+                    >
+                        Cancel
+                    </a>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn--primary"
+                    >
+                        Upload &amp; Process
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+    </div>
+
+</main>
+
+</div>
+
+{% block extra_js %}
+<script>
+    const fileInput = document.getElementById("audio_file");
+    const fileName = document.getElementById("selectedFileName");
+
+    if (fileInput && fileName) {
+        fileInput.addEventListener("change", function () {
+            fileName.textContent =
+                this.files.length
+                    ? this.files[0].name
+                    : "No file selected";
+        });
+    }
+</script>
+{% endblock %}
+
+{% endblock %}

@@ -107,7 +107,27 @@
       <div class="page-header__actions">
 
     {% include "partials/status_badge.html" with status=lecture.status %}
+    
+    {% if request.user.role == "lecturer" and lecture.lecturer == request.user %}
 
+    <form
+        method="post"
+        action="{% url 'delete_lecture' lecture.id %}"
+        class="delete-lecture-form"
+        onsubmit="return confirm('Are you sure you want to delete this lecture? This cannot be undone.');"
+    >
+        {% csrf_token %}
+
+        <button
+            type="submit"
+            class="btn btn--danger"
+        >
+            Delete Lecture
+        </button>
+
+    </form>
+
+{% endif %}
 
     {% if lecture.status == "completed" %}
 

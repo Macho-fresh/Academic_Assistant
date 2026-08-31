@@ -1,60 +1,77 @@
-/**
- * profile.js — frontend-only interactions for profile.html.
- * No backend update logic lives here: Django handles the actual save.
- * Mobile sidebar toggling is handled globally by app-shell.js.
- */
 (function () {
-  "use strict";
+    "use strict";
 
-  /* ---- Edit profile: toggle view / edit mode ---------------------------- */
+    const editButton =
+        document.getElementById("editProfileBtn");
 
-  var editBtn = document.getElementById("editProfileBtn");
-  var cancelBtn = document.getElementById("cancelEditBtn");
-  var actions = document.getElementById("profileFormActions");
-  var personalInfoCard = document.getElementById("personalInfoCard");
-  var editableFields = ["id_full_name"]; // email and role stay read-only
-  var originalValues = {};
+    const cancelButton =
+        document.getElementById("cancelEditBtn");
 
-  function setEditMode(isEditing) {
-    editableFields.forEach(function (id) {
-      var input = document.getElementById(id);
-      if (!input) return;
-      if (isEditing) {
-        originalValues[id] = input.value;
-        input.removeAttribute("readonly");
-      } else {
-        input.setAttribute("readonly", "readonly");
-      }
-    });
+    const actions =
+        document.getElementById("profileFormActions");
 
-    if (actions) actions.hidden = !isEditing;
-    if (editBtn) {
-      editBtn.setAttribute("aria-pressed", String(isEditing));
-      editBtn.hidden = isEditing;
+    const fullNameInput =
+        document.getElementById("id_full_name");
+
+
+    if (
+        !editButton ||
+        !fullNameInput ||
+        !actions
+    ) {
+        return;
     }
-    if (personalInfoCard) personalInfoCard.classList.toggle("is-editing", isEditing);
 
-    if (isEditing) {
-      var firstField = document.getElementById(editableFields[0]);
-      if (firstField) firstField.focus();
+
+    const originalName =
+        fullNameInput.value;
+
+
+    function enableEditing() {
+
+        fullNameInput.removeAttribute(
+            "readonly"
+        );
+
+        actions.hidden = false;
+
+        editButton.hidden = true;
+
+        fullNameInput.focus();
+
     }
-  }
 
-  if (editBtn) {
-    editBtn.addEventListener("click", function () {
-      setEditMode(true);
-    });
-  }
 
-  if (cancelBtn) {
-    cancelBtn.addEventListener("click", function () {
-      editableFields.forEach(function (id) {
-        var input = document.getElementById(id);
-        if (input && originalValues[id] !== undefined) {
-          input.value = originalValues[id];
-        }
-      });
-      setEditMode(false);
-    });
-  }
+    function cancelEditing() {
+
+        fullNameInput.value =
+            originalName;
+
+        fullNameInput.setAttribute(
+            "readonly",
+            true
+        );
+
+        actions.hidden = true;
+
+        editButton.hidden = false;
+
+    }
+
+
+    editButton.addEventListener(
+        "click",
+        enableEditing
+    );
+
+
+    if (cancelButton) {
+
+        cancelButton.addEventListener(
+            "click",
+            cancelEditing
+        );
+
+    }
+
 })();

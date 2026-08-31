@@ -1,0 +1,136 @@
+.upload-page {
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+.upload-card {
+    padding: 32px;
+    border-radius: 18px;
+}
+
+.upload-form {
+    display: grid;
+    gap: 24px;
+}
+
+.form-group {
+    display: grid;
+    gap: 10px;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.form-control {
+    width: 100%;
+    height: 52px;
+    padding: 0 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: #fff;
+    font: inherit;
+    color: var(--text-primary);
+    outline: none;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.form-control:focus {
+    border-color: #c68d1a;
+    box-shadow: 0 0 0 3px rgba(198, 141, 26, 0.12);
+}
+
+.upload-dropzone {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 210px;
+    padding: 32px;
+    text-align: center;
+    border: 1.5px dashed #cbd5df;
+    border-radius: 16px;
+    background: #f8fafc;
+    cursor: pointer;
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease;
+}
+
+.upload-dropzone:hover {
+    border-color: #c68d1a;
+    background: #fffaf0;
+}
+
+.upload-dropzone__icon {
+    width: 52px;
+    height: 52px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 14px;
+    border-radius: 14px;
+    background: #fff3d6;
+    color: #b7790f;
+}
+
+.upload-dropzone__title {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.upload-dropzone__text {
+    margin: 6px 0 0;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.upload-dropzone__hint {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.upload-dropzone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.upload-file-name {
+    margin-top: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.upload-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 8px;
+}
+
+.upload-actions .btn {
+    min-width: 150px;
+}
+
+@media (max-width: 700px) {
+    .upload-card {
+        padding: 22px;
+    }
+
+    .upload-actions {
+        flex-direction: column-reverse;
+    }
+
+    .upload-actions .btn {
+        width: 100%;
+    }
+}

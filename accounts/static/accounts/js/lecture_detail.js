@@ -1,135 +1,143 @@
-(function () {
-    "use strict";
+const lectureAudio = document.getElementById("lectureAudio");
 
-    var audio = document.getElementById("lectureAudio");
 
-    /*
-     * Seek lecture audio when a transcript timestamp
-     * or topic timestamp is clicked.
-     */
-    function seekTo(seconds) {
-        if (!audio) return;
+function jumpToTimestamp(seconds) {
 
-        audio.currentTime = seconds;
+    if (!lectureAudio) {
+        console.error("Audio player not found.");
+        return;
+    }
 
-        audio.play().catch(function (error) {
-            console.error("Unable to play lecture audio:", error);
-        });
+    seconds = parseFloat(seconds);
+
+    if (isNaN(seconds)) {
+        console.error("Invalid timestamp.");
+        return;
+    }
+
+    console.log("Trying to seek to:", seconds);
+
+    lectureAudio.pause();
+
+
+    function doSeek() {
+
+        console.log(
+            "Duration:",
+            lectureAudio.duration
+        );
+
+        console.log(
+            "Seekable ranges:",
+            lectureAudio.seekable.length
+        );
+
+
+        if (lectureAudio.seekable.length > 0) {
+
+            console.log(
+                "Seekable start:",
+                lectureAudio.seekable.start(0)
+            );
+
+            console.log(
+                "Seekable end:",
+                lectureAudio.seekable.end(
+                    lectureAudio.seekable.length - 1
+                )
+            );
+        }
+
+
+        /*
+         * Use fastSeek when supported.
+         */
+        if (
+            typeof lectureAudio.fastSeek === "function"
+        ) {
+
+            lectureAudio.fastSeek(seconds);
+
+        } else {
+
+            lectureAudio.currentTime = seconds;
+
+        }
+
+
+        console.log(
+            "currentTime after seek:",
+            lectureAudio.currentTime
+        );
     }
 
 
-    document
-        .querySelectorAll("[data-start-seconds]")
-        .forEach(function (element) {
+    if (lectureAudio.readyState >= 1) {
 
-            element.addEventListener("click", function () {
+        doSeek();
 
-                var seconds = parseFloat(
-                    element.dataset.startSeconds
+    } else {
+
+        lectureAudio.addEventListener(
+            "loadedmetadata",
+            doSeek,
+            { once: true }
+        );
+    }
+
+}
+
+
+/*
+ * Wait until browser confirms seeking
+ * before playing.
+ */
+lectureAudio.addEventListener(
+    "seeked",
+    function () {
+
+        console.log(
+            "Seek completed:",
+            lectureAudio.currentTime
+        );
+
+        lectureAudio.play()
+            .catch(function (error) {
+                console.error(
+                    "Playback error:",
+                    error
                 );
-
-                if (!isNaN(seconds)) {
-                    seekTo(seconds);
-                }
-
             });
 
-        });
+    }
+);
 
 
-    /*
-     * Transcript search
-     */
-    var transcriptSearch =
-        document.getElementById("transcriptSearch");
+document.addEventListener(
+    "click",
+    function (event) {
 
-    var transcriptTextEls =
-        document.querySelectorAll(
-            ".transcript-segment__text, .transcript-raw"
+        const element =
+            event.target.closest(
+                "[data-start-seconds]"
+            );
+
+        if (!element) {
+            return;
+        }
+
+        event.preventDefault();
+
+        const seconds =
+            element.dataset.startSeconds;
+
+        console.log(
+            "Jumping to:",
+            seconds,
+            "seconds"
         );
 
-
-    var originalTexts =
-        Array.prototype.map.call(
-            transcriptTextEls,
-            function (element) {
-                return element.textContent;
-            }
-        );
-
-
-    function escapeRegExp(string) {
-
-        return string.replace(
-            /[.*+?^${}()|[\]\\]/g,
-            "\\$&"
-        );
+        jumpToTimestamp(seconds);
 
     }
-
-
-    function escapeHtml(string) {
-
-        return string
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;");
-
-    }
-
-
-    function highlight(query) {
-
-        transcriptTextEls.forEach(
-            function (element, index) {
-
-                var original =
-                    originalTexts[index];
-
-                if (!query) {
-
-                    element.textContent =
-                        original;
-
-                    return;
-                }
-
-                var pattern =
-                    new RegExp(
-                        "(" +
-                        escapeRegExp(query) +
-                        ")",
-                        "gi"
-                    );
-
-                var safeText =
-                    escapeHtml(original);
-
-                element.innerHTML =
-                    safeText.replace(
-                        pattern,
-                        "<mark>$1</mark>"
-                    );
-
-            }
-        );
-
-    }
-
-
-    if (transcriptSearch) {
-
-        transcriptSearch.addEventListener(
-            "input",
-            function () {
-
-                highlight(
-                    transcriptSearch.value.trim()
-                );
-
-            }
-        );
-
-    }
-
-})();
+);
