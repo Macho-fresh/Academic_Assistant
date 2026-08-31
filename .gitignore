@@ -3,3 +3,4 @@ manage.py
 db.sqlite3
 __pycache__
 venv/
+venv-python313/
