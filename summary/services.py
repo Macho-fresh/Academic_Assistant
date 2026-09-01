@@ -28,8 +28,7 @@ def get_summary_model():
     return _tokenizer, _model
 
 
-def chunk_text(text, max_words=300):
-
+def chunk_text(text, max_words=220):
     words = text.split()
 
     return [
@@ -40,6 +39,7 @@ def chunk_text(text, max_words=300):
             max_words
         )
     ]
+
 
 def run_model(prompt, max_new_tokens=120):
 
@@ -54,10 +54,19 @@ def run_model(prompt, max_new_tokens=120):
 
     outputs = model.generate(
         **inputs,
+
         max_new_tokens=max_new_tokens,
-        num_beams=5,
-        repetition_penalty=1.2,
-        no_repeat_ngram_size=2,
+
+        min_new_tokens=30,
+
+        num_beams=6,
+
+        length_penalty=1.5,
+
+        repetition_penalty=1.3,
+
+        no_repeat_ngram_size=3,
+
         early_stopping=True
     )
 
@@ -81,8 +90,13 @@ def generate_summary(text):
     for chunk in chunks:
 
         prompt = (
-            "Summarize this lecture in your own words: "
-            + chunk
+            "Summarize the following lecture transcript "
+            "in 2 to 4 clear sentences. "
+            "Only describe what is said in the transcript. "
+            "Do not ask questions. "
+            "Do not repeat the instruction.\n\n"
+            f"Transcript:\n{chunk}\n\n"
+            "Summary:"
         )
 
         summary = run_model(
@@ -96,6 +110,24 @@ def generate_summary(text):
     combined_summary = " ".join(
         chunk_summaries
     ).strip()
+
+    # If there were several chunks,
+    # summarize the summaries again.
+    if len(chunk_summaries) > 1:
+
+        final_prompt = (
+            "Combine the following lecture summaries "
+            "into one concise academic summary. "
+            "Use 3 to 5 sentences. "
+            "Do not add information that is not present.\n\n"
+            f"{combined_summary}\n\n"
+            "Final summary:"
+        )
+
+        combined_summary = run_model(
+            final_prompt,
+            max_new_tokens=140
+        )
 
     key_points = generate_key_points(
         text
@@ -112,35 +144,54 @@ def generate_key_points(text):
     if not text or not text.strip():
         return []
 
-    prompt = (
-        "List the important ideas from this lecture. "
-        "One idea per line: "
-        + text
+    text = " ".join(
+        text.split()[:300]
     )
 
-    result = run_model(
-        prompt,
-        max_new_tokens=120
-    )
+    key_points = []
 
-    lines = [
-        line.strip()
-        for line in result.split("\n")
-        if line.strip()
+    prompts = [
+        (
+            "What is the main idea discussed in this "
+            "lecture transcript? Answer with one factual "
+            "sentence based only on the transcript.\n\n"
+            f"Transcript:\n{text}\n\n"
+            "Main idea:"
+        ),
+
+        (
+            "What is one important supporting fact from "
+            "this lecture transcript? Answer with one "
+            "short factual sentence.\n\n"
+            f"Transcript:\n{text}\n\n"
+            "Important fact:"
+        ),
+
+        (
+            "What conclusion or question does the speaker "
+            "raise in this lecture transcript? Answer with "
+            "one short sentence based only on the transcript.\n\n"
+            f"Transcript:\n{text}\n\n"
+            "Point:"
+        )
     ]
 
-    cleaned_points = []
+    for prompt in prompts:
 
-    for line in lines:
+        point = run_model(
+            prompt,
+            max_new_tokens=60
+        )
 
-        line = line.lstrip(
-            "-•0123456789. )"
-        ).strip()
+        point = point.strip()
 
-        if line:
-            cleaned_points.append(line)
+        if (
+            point
+            and point not in key_points
+        ):
+            key_points.append(point)
 
-    return cleaned_points[:5]
+    return key_points[:5]
 
 def save_lecture_summary(lecture):
 
