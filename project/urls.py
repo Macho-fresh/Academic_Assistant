@@ -26,6 +26,7 @@ urlpatterns = [
     path("", include("courses.urls")),
     path("", include("lectures.urls")),
     path("", include("timetable.urls")),
+    path("", include("assistant.urls")),
     # path("transcription/", include("transcription.urls")),
     # path("indexing/", include("indexing.urls")),
 ]

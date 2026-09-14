@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block title %}
+Academic Assistant
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'accounts/css/assistant.css' %}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="assistant-page">
+
+    <div class="assistant-header">
+
+        <h1>Academic Assistant</h1>
+
+        <p>
+            Ask questions about your lectures,
+            topics and course materials.
+        </p>
+
+    </div>
+
+
+    <div
+        class="assistant-chat"
+        id="assistantChat"
+    >
+
+        <div class="assistant-message assistant">
+
+            Ask me anything about your lectures.
+
+        </div>
+
+
+        {% for item in assistant_messages %}
+
+            <div
+                class="assistant-message {{ item.role }}"
+            >
+
+                {{ item.message }}
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+
+    <div class="assistant-input-area">
+
+        <button
+            type="button"
+            id="voiceButton"
+            class="voice-button"
+            title="Ask with voice"
+        >
+            🎙
+        </button>
+
+
+        <input
+            type="text"
+            id="assistantInput"
+            placeholder="Ask about your lectures..."
+            autocomplete="off"
+        >
+
+
+        <button
+            type="button"
+            id="sendButton"
+        >
+            Send
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+    const ASK_ASSISTANT_URL =
+        "{% url 'ask_assistant' %}";
+</script>
+
+<script
+    src="{% static 'accounts/js/assistant.js' %}"
+></script>
+
+{% endblock %}

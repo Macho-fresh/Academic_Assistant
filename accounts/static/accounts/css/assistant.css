@@ -1,0 +1,444 @@
+/* =========================================
+   ACADEMIC ASSISTANT
+========================================= */
+
+.assistant-page {
+    height: calc(100vh - 110px);
+    display: flex;
+    flex-direction: column;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+
+/* =========================================
+   HEADER
+========================================= */
+
+.assistant-header {
+    margin-bottom: 24px;
+}
+
+.assistant-header h1 {
+    margin: 0 0 6px;
+    font-size: 28px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.assistant-header p {
+    margin: 0;
+    font-size: 14px;
+    color: #64748b;
+}
+
+
+/* =========================================
+   CHAT CONTAINER
+========================================= */
+
+.assistant-chat {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+
+    padding: 24px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    overflow-y: auto;
+
+    scroll-behavior: smooth;
+
+}
+
+
+/* =========================================
+   MESSAGE
+========================================= */
+
+.assistant-message {
+    display: inline-block;
+
+    width: auto;
+    max-width: 70%;
+
+    padding: 10px 14px;
+    margin-bottom: 12px;
+
+    border-radius: 14px;
+
+    font-size: 15px;
+    line-height: 1.5;
+
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+.assistant-message.user {
+    align-self: flex-end;
+    background: #12345b;
+    color: #ffffff;
+}
+
+.assistant-message.assistant {
+    align-self: flex-start;
+    background: #eef3f8;
+    color: #14213d;
+}
+
+.assistant-message.user .assistant-message-text {
+    color: #ffffff;
+}
+
+
+/* =========================================
+   ASSISTANT MESSAGE
+========================================= */
+/* 
+.assistant-message.assistant {
+    align-self: flex-start;
+    background: #f0f4f8;
+    color: #14213d;
+} */
+
+.assistant-message.assistant .assistant-message-text {
+    color: #1e293b;
+}
+
+
+/* =========================================
+   LOADING MESSAGE
+========================================= */
+
+.assistant-loading {
+    color: #64748b !important;
+    font-style: italic;
+}
+
+
+/* =========================================
+   LECTURE RESULT
+========================================= */
+
+.assistant-result {
+    margin-top: 12px;
+    padding-top: 12px;
+
+    border-top: 1px solid #dbe3ec;
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.assistant-result-info {
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.assistant-result-link {
+    width: fit-content;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    color: #1d4ed8;
+    text-decoration: none;
+
+    transition: color 0.2s ease;
+}
+
+.assistant-result-link:hover {
+    color: #1e40af;
+    text-decoration: underline;
+}
+
+
+/* =========================================
+   READ ALOUD
+========================================= */
+
+.assistant-speak-button {
+    margin-top: 10px;
+
+    width: fit-content;
+
+    padding: 5px 9px;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+
+    background: transparent;
+    color: #475569;
+
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.assistant-speak-button:hover {
+    background: #ffffff;
+    border-color: #94a3b8;
+}
+
+
+/* =========================================
+   INPUT AREA
+========================================= */
+
+.assistant-input-area {
+    margin-top: 16px;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 10px;
+
+    background: #ffffff;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+
+
+/* =========================================
+   TEXT INPUT
+========================================= */
+
+#assistantInput {
+    flex: 1;
+
+    height: 44px;
+
+    padding: 0 10px;
+
+    border: none;
+    outline: none;
+
+    background: transparent;
+
+    font-family: inherit;
+    font-size: 14px;
+
+    color: #0f172a;
+}
+
+#assistantInput::placeholder {
+    color: #94a3b8;
+}
+
+
+/* =========================================
+   SEND BUTTON
+========================================= */
+
+#sendButton {
+    height: 42px;
+
+    padding: 0 20px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #0f2f57;
+    color: #ffffff;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.1s ease;
+}
+
+#sendButton:hover {
+    background: #173f70;
+}
+
+#sendButton:active {
+    transform: scale(0.98);
+}
+
+#sendButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+
+/* =========================================
+   MICROPHONE BUTTON
+========================================= */
+
+.voice-button {
+    width: 42px;
+    height: 42px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+
+    background: #f8fafc;
+    color: #334155;
+
+    font-size: 17px;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.1s ease;
+}
+
+.voice-button:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.voice-button:active {
+    transform: scale(0.96);
+}
+
+.voice-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+
+/* =========================================
+   MICROPHONE LISTENING STATE
+========================================= */
+
+.voice-button.listening {
+    background: #fee2e2;
+    border-color: #fecaca;
+    color: #dc2626;
+
+    animation: listening-pulse 1.2s infinite;
+}
+
+@keyframes listening-pulse {
+
+    0% {
+        box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.25);
+    }
+
+    70% {
+        box-shadow: 0 0 0 8px rgba(220, 38, 38, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+    }
+}
+
+
+/* =========================================
+   SCROLLBAR
+========================================= */
+
+.assistant-chat::-webkit-scrollbar {
+    width: 6px;
+}
+
+.assistant-chat::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.assistant-chat::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 20px;
+}
+
+.assistant-chat::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 768px) {
+
+    .assistant-page {
+        height: calc(100vh - 90px);
+    }
+
+    .assistant-header {
+        margin-bottom: 16px;
+    }
+
+    .assistant-header h1 {
+        font-size: 23px;
+    }
+
+    .assistant-chat {
+        padding: 16px;
+        border-radius: 10px;
+    }
+
+    .assistant-message {
+        max-width: 88%;
+    }
+
+    .assistant-input-area {
+        gap: 7px;
+        padding: 8px;
+    }
+
+    #sendButton {
+        padding: 0 14px;
+    }
+}
+
+
+@media (max-width: 480px) {
+
+    .assistant-message {
+        max-width: 94%;
+        font-size: 13px;
+    }
+
+    .assistant-header p {
+        font-size: 13px;
+    }
+
+    #assistantInput {
+        font-size: 13px;
+    }
+
+    .voice-button {
+        width: 40px;
+        height: 40px;
+    }
+
+    #sendButton {
+        height: 40px;
+        padding: 0 12px;
+    }
+}

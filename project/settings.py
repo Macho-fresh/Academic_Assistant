@@ -55,7 +55,8 @@ INSTALLED_APPS = [
     "transcription",
     "indexing",
     "timetable",
-    "summary"
+    "summary",
+    "assistant"
 ]
 
 MIDDLEWARE = [
