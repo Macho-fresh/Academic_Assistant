@@ -23,12 +23,21 @@ Academic Assistant
 
     <div class="assistant-header">
 
+    <div>
         <h1>Academic Assistant</h1>
-
         <p>
             Ask questions about your lectures,
             topics and course materials.
         </p>
+    </div>
+
+    <button
+        type="button"
+        id="clearChatButton"
+        class="clear-chat-button"
+    >
+        Clear chat
+    </button>
 
     </div>
 
@@ -47,15 +56,82 @@ Academic Assistant
 
         {% for item in assistant_messages %}
 
-            <div
-                class="assistant-message {{ item.role }}"
-            >
+    <div class="assistant-message {{ item.role }}">
 
-                {{ item.message }}
+        <div class="assistant-message-text">
+            {{ item.message|linebreaksbr }}
+        </div>
+
+
+        {% if item.role == "assistant" and item.metadata.lecture_id %}
+
+            <div class="assistant-result">
+
+                <div class="assistant-result-info">
+
+                    {% if item.metadata.course %}
+                        <strong>
+                            {{ item.metadata.course }}
+                        </strong>
+                    {% endif %}
+
+                    {% if item.metadata.lecture %}
+                        <span>
+                            {{ item.metadata.lecture }}
+                        </span>
+                    {% endif %}
+
+                    {% if item.metadata.timestamp_display %}
+                        <span>
+                            Timestamp:
+                            {{ item.metadata.timestamp_display }}
+                        </span>
+                    {% endif %}
+
+                </div>
+
+                <a
+                    class="assistant-result-link"
+                    href="{% url 'lecture_detail' item.metadata.lecture_id %}{% if item.metadata.timestamp %}?t={{ item.metadata.timestamp }}{% endif %}"
+                >
+                    Open lecture
+                </a>
 
             </div>
 
-        {% endfor %}
+        {% endif %}
+
+        {% if item.role == "assistant" and item.metadata.match_type == "timetable" %}
+
+            <div class="assistant-result">
+
+                <a
+                    class="assistant-result-link"
+                    href="{% url 'timetable' %}"
+                >
+                    View timetable
+                </a>
+
+            </div>
+
+        {% endif %}
+
+
+        {% if item.role == "assistant" %}
+
+            <button
+                type="button"
+                class="assistant-speak-button"
+                data-speech="{{ item.message|escapejs }}"
+            >
+                Read aloud
+            </button>
+
+        {% endif %}
+
+    </div>
+
+{% endfor %}
 
     </div>
 
@@ -95,6 +171,9 @@ Academic Assistant
 <script>
     const ASK_ASSISTANT_URL =
         "{% url 'ask_assistant' %}";
+
+    const CLEAR_CHAT_URL =
+        "{% url 'clear_chat' %}";
 </script>
 
 <script

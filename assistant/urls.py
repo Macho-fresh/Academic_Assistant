@@ -1,10 +1,6 @@
 from django.urls import path
 
-from .views import (
-    AssistantView,
-    AskAssistantView,
-)
-
+from .views import *
 
 urlpatterns = [
 
@@ -18,6 +14,12 @@ urlpatterns = [
         "ask/",
         AskAssistantView.as_view(),
         name="ask_assistant"
+    ),
+
+    path(
+        "clear-chat/",
+        ClearChatView.as_view(),
+        name="clear_chat"
     ),
 
 ]

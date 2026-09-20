@@ -6,9 +6,17 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from indexing.services import generate_topics
 from courses.models import Course
-from transcription.services import transcribe_audio, make_audio_seekable
+from transcription.services import transcribe_audio, make_audio_seekable, get_audio_duration
 from summary.services import save_lecture_summary
 from .models import *
+import os
+import re
+
+from django.http import (
+    StreamingHttpResponse,
+    HttpResponse,
+    Http404,
+)
 
 
 @login_required(login_url="login")
@@ -302,104 +310,104 @@ def process_lecture_transcription(lecture):
 
         return False, error
 
-    lecture.status = "processing"
+    # lecture.status = "processing"
 
-    lecture.save(
-        update_fields=["status"]
-    )
+    # lecture.save(
+    #     update_fields=["status"]
+    # )
 
-    try:
+    # try:
 
-        # STEP 1: Transcribe audio
-        result = transcribe_audio(
-            lecture.audio_file.path
-        )
+    #     # STEP 1: Transcribe audio
+    #     result = transcribe_audio(
+    #         lecture.audio_file.path
+    #     )
 
-        lecture.transcript = result["text"]
+    #     lecture.transcript = result["text"]
 
-        # STEP 2: Save timestamped transcript
-        save_transcript_segments(
-            lecture,
-            result["segments"]
-        )
+    #     # STEP 2: Save timestamped transcript
+    #     save_transcript_segments(
+    #         lecture,
+    #         result["segments"]
+    #     )
 
-        # STEP 3: Generate lecture topics
-        generate_topics(
-            lecture
-        )
+    #     # STEP 3: Generate lecture topics
+    #     generate_topics(
+    #         lecture
+    #     )
 
-        # We will add summary generation here next
+    #     # We will add summary generation here next
 
-        lecture.status = "completed"
+    #     lecture.status = "completed"
 
-        lecture.save(
-            update_fields=[
-                "transcript",
-                "status"
-            ]
-        )
+    #     lecture.save(
+    #         update_fields=[
+    #             "transcript",
+    #             "status"
+    #         ]
+    #     )
 
-        return True, None
+    #     return True, None
 
-    except Exception as error:
+    # except Exception as error:
 
-        print(
-            f"Lecture processing failed for lecture {lecture.id}:",
-            error
-        )
+    #     print(
+    #         f"Lecture processing failed for lecture {lecture.id}:",
+    #         error
+    #     )
 
-        lecture.status = "failed"
+    #     lecture.status = "failed"
 
-        lecture.save(
-            update_fields=["status"]
-        )
+    #     lecture.save(
+    #         update_fields=["status"]
+    #     )
 
-        return False, error
+    #     return False, error
 
-    lecture.status = "processing"
+    # lecture.status = "processing"
 
-    lecture.save(
-        update_fields=["status"]
-    )
+    # lecture.save(
+    #     update_fields=["status"]
+    # )
 
-    try:
+    # try:
 
-        result = transcribe_audio(
-            lecture.audio_file.path
-        )
+    #     result = transcribe_audio(
+    #         lecture.audio_file.path
+    #     )
 
-        lecture.transcript = result["text"]
+    #     lecture.transcript = result["text"]
 
-        save_transcript_segments(
-            lecture,
-            result["segments"]
-        )
+    #     save_transcript_segments(
+    #         lecture,
+    #         result["segments"]
+    #     )
 
-        lecture.status = "completed"
+    #     lecture.status = "completed"
 
-        lecture.save(
-            update_fields=[
-                "transcript",
-                "status"
-            ]
-        )
+    #     lecture.save(
+    #         update_fields=[
+    #             "transcript",
+    #             "status"
+    #         ]
+    #     )
 
-        return True, None
+    #     return True, None
 
-    except Exception as error:
+    # except Exception as error:
 
-        print(
-            f"Transcription failed for lecture {lecture.id}:",
-            error
-        )
+    #     print(
+    #         f"Transcription failed for lecture {lecture.id}:",
+    #         error
+    #     )
 
-        lecture.status = "failed"
+    #     lecture.status = "failed"
 
-        lecture.save(
-            update_fields=["status"]
-        )
+    #     lecture.save(
+    #         update_fields=["status"]
+    #     )
 
-        return False, error
+    #     return False, error
 
 
 class RecordLectureView(LoginRequiredMixin, View):
@@ -519,22 +527,51 @@ class RecordLectureView(LoginRequiredMixin, View):
             status="pending"
         )
 
-        make_audio_seekable(lecture.audio_file.path)
-        # lecture.duration_seconds = (
-        #     get_audio_duration(
-        #         lecture.audio_file.path
-        #     )
-        # )
+        old_path = lecture.audio_file.path
+        old_name = lecture.audio_file.name
 
-        # lecture.save(
-        #     update_fields=[
-        #         "duration_seconds"
-        #     ]
-        # )
 
-        success, error = process_lecture_transcription(
-            lecture
+        new_path = make_audio_seekable(
+            old_path
         )
+
+
+        new_name = (
+            os.path.splitext(old_name)[0]
+            + ".m4a"
+        )
+
+
+        lecture.audio_file.name = new_name
+
+        lecture.duration_seconds = (
+            get_audio_duration(
+                new_path
+            )
+        )
+
+
+        lecture.save(
+            update_fields=[
+                "audio_file",
+                "duration_seconds"
+            ]
+        )
+
+
+        if (
+            old_path != new_path
+            and os.path.exists(old_path)
+        ):
+            os.remove(old_path)
+
+
+        success, error = (
+            process_lecture_transcription(
+                lecture
+            )
+        )
+
 
         if success:
 
@@ -566,6 +603,7 @@ def retry_processing(request, lecture_id):
         id=lecture_id
     )
 
+    # Only allow POST requests
     if request.method != "POST":
 
         return redirect(
@@ -573,6 +611,7 @@ def retry_processing(request, lecture_id):
             lecture_id=lecture.id
         )
 
+    # Only the lecturer who owns the lecture can reprocess it
     if (
         request.user.role != "lecturer"
         or lecture.lecturer != request.user
@@ -588,6 +627,7 @@ def retry_processing(request, lecture_id):
             lecture_id=lecture.id
         )
 
+    # Make sure the lecture has an audio file
     if not lecture.audio_file:
 
         messages.error(
@@ -600,22 +640,91 @@ def retry_processing(request, lecture_id):
             lecture_id=lecture.id
         )
 
-    success, error = process_lecture_transcription(
-        lecture
-    )
+    try:
 
-    if success:
+        old_path = lecture.audio_file.path
+        old_name = lecture.audio_file.name
 
-        messages.success(
-            request,
-            "Lecture processed successfully."
+        # Convert old WebM/other recordings to seekable M4A
+        if not old_path.lower().endswith(".m4a"):
+
+            new_path = make_audio_seekable(
+                old_path
+            )
+
+            new_name = (
+                os.path.splitext(old_name)[0]
+                + ".m4a"
+            )
+
+            lecture.audio_file.name = new_name
+
+            lecture.duration_seconds = (
+                get_audio_duration(
+                    new_path
+                )
+            )
+
+            lecture.save(
+                update_fields=[
+                    "audio_file",
+                    "duration_seconds"
+                ]
+            )
+
+            # Delete the original WebM/other audio
+            if (
+                old_path != new_path
+                and os.path.exists(old_path)
+            ):
+                os.remove(old_path)
+
+        else:
+
+            # Already M4A — just make sure duration is correct
+            lecture.duration_seconds = (
+                get_audio_duration(
+                    lecture.audio_file.path
+                )
+            )
+
+            lecture.save(
+                update_fields=[
+                    "duration_seconds"
+                ]
+            )
+
+        # Run transcription/topics/summary
+        success, error = (
+            process_lecture_transcription(
+                lecture
+            )
         )
 
-    else:
+        if success:
+
+            messages.success(
+                request,
+                "Lecture processed successfully."
+            )
+
+        else:
+
+            messages.error(
+                request,
+                "Lecture processing failed again."
+            )
+
+    except Exception as error:
+
+        print(
+            f"Reprocessing failed for lecture {lecture.id}:",
+            error
+        )
 
         messages.error(
             request,
-            "Lecture processing failed again."
+            f"Lecture processing failed: {error}"
         )
 
     return redirect(
@@ -817,21 +926,73 @@ class UploadLectureView(LoginRequiredMixin, View):
             status="pending"
         )
 
-        make_audio_seekable(lecture.audio_file.path)
-        # lecture.duration_seconds = (
-        #     get_audio_duration(
-        #         lecture.audio_file.path
-        #     )
-        # )
+        old_path = lecture.audio_file.path
+        old_name = lecture.audio_file.name
 
-        # lecture.save(
-        #     update_fields=[
-        #         "duration_seconds"
-        #     ]
-        # )
+        try:
 
-        success, error = process_lecture_transcription(
-            lecture
+            new_path = make_audio_seekable(
+                old_path
+            )
+
+            if old_path.lower().endswith(".m4a"):
+
+                new_name = (
+                    os.path.splitext(old_name)[0]
+                    + "_seekable.m4a"
+                )
+
+            else:
+
+                new_name = (
+                    os.path.splitext(old_name)[0]
+                    + ".m4a"
+                )
+
+            lecture.audio_file.name = new_name
+
+            lecture.duration_seconds = (
+                get_audio_duration(
+                    new_path
+                )
+            )
+
+            lecture.save(
+                update_fields=[
+                    "audio_file",
+                    "duration_seconds"
+                ]
+            )
+
+            if (
+                old_path != new_path
+                and os.path.exists(old_path)
+            ):
+                os.remove(old_path)
+
+        except Exception as error:
+
+            print(
+                "Audio conversion failed:",
+                error
+            )
+
+            lecture.delete()
+
+            messages.error(
+                request,
+                "The audio file could not be processed. "
+                "Please try another audio file."
+            )
+
+            return redirect(
+                "upload_lecture"
+            )
+
+        success, error = (
+            process_lecture_transcription(
+                lecture
+            )
         )
 
 
@@ -854,3 +1015,183 @@ class UploadLectureView(LoginRequiredMixin, View):
             "lecture_detail",
             lecture_id=lecture.id
         )
+
+@login_required(login_url="login")
+def stream_lecture_audio(request, lecture_id):
+
+    lecture = get_object_or_404(
+        Lecture,
+        id=lecture_id
+    )
+
+    if not lecture.audio_file:
+        raise Http404(
+            "Audio file not found."
+        )
+
+    file_path = lecture.audio_file.path
+
+    if not os.path.exists(file_path):
+        raise Http404(
+            "Audio file not found."
+        )
+
+    file_size = os.path.getsize(
+        file_path
+    )
+
+    range_header = request.headers.get(
+        "Range"
+    )
+
+    content_type = "audio/mp4"
+
+    extension = os.path.splitext(
+        file_path
+    )[1].lower()
+
+    if extension == ".mp3":
+        content_type = "audio/mpeg"
+
+    elif extension == ".wav":
+        content_type = "audio/wav"
+
+    elif extension == ".webm":
+        content_type = "audio/webm"
+
+    elif extension == ".ogg":
+        content_type = "audio/ogg"
+
+
+    if range_header:
+
+        match = re.match(
+            r"bytes=(\d+)-(\d*)",
+            range_header
+        )
+
+        if match:
+
+            start = int(
+                match.group(1)
+            )
+
+            end_text = match.group(2)
+
+            if end_text:
+                end = int(end_text)
+            else:
+                end = file_size - 1
+
+            end = min(
+                end,
+                file_size - 1
+            )
+
+            if start >= file_size:
+
+                response = HttpResponse(
+                    status=416
+                )
+
+                response[
+                    "Content-Range"
+                ] = f"bytes */{file_size}"
+
+                return response
+
+
+            length = (
+                end - start + 1
+            )
+
+
+            def file_iterator():
+
+                with open(
+                    file_path,
+                    "rb"
+                ) as audio_file:
+
+                    audio_file.seek(
+                        start
+                    )
+
+                    remaining = length
+
+                    while remaining > 0:
+
+                        chunk = audio_file.read(
+                            min(
+                                8192,
+                                remaining
+                            )
+                        )
+
+                        if not chunk:
+                            break
+
+                        remaining -= len(
+                            chunk
+                        )
+
+                        yield chunk
+
+
+            response = StreamingHttpResponse(
+                file_iterator(),
+                status=206,
+                content_type=content_type
+            )
+
+            response[
+                "Content-Length"
+            ] = str(length)
+
+            response[
+                "Content-Range"
+            ] = (
+                f"bytes {start}-{end}/{file_size}"
+            )
+
+            response[
+                "Accept-Ranges"
+            ] = "bytes"
+
+            return response
+
+
+    # No Range header
+    def full_file_iterator():
+
+        with open(
+            file_path,
+            "rb"
+        ) as audio_file:
+
+            while True:
+
+                chunk = audio_file.read(
+                    8192
+                )
+
+                if not chunk:
+                    break
+
+                yield chunk
+
+
+    response = StreamingHttpResponse(
+        full_file_iterator(),
+        content_type=content_type
+    )
+
+    response[
+        "Content-Length"
+    ] = str(file_size)
+
+    response[
+        "Accept-Ranges"
+    ] = "bytes"
+
+    return response

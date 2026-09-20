@@ -233,13 +233,15 @@
   <section class="card lecture-audio">
 
     <audio
-      id="lectureAudio"
-      controls
-      preload="metadata"
-      src="{{ lecture.audio_file.url }}"
-      style="width: 100%;"
+        id="lectureAudio"
+        controls
+        preload="metadata"
     >
-      Your browser does not support the audio element.
+        <source
+            src="{% url 'stream_lecture_audio' lecture.id %}"
+            type="audio/mp4"
+        >
+        Your browser does not support audio playback.
     </audio>
 
   </section>

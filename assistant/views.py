@@ -34,9 +34,7 @@ class AskAssistantView(LoginRequiredMixin, View):
     def post(self, request):
 
         try:
-            data = json.loads(
-                request.body
-            )
+            data = json.loads(request.body)
 
             query = data.get(
                 "message",
@@ -61,21 +59,50 @@ class AskAssistantView(LoginRequiredMixin, View):
                 status=400
             )
 
+        # Save user's message
         AssistantMessage.objects.create(
             user=request.user,
             role="user",
             message=query
         )
 
+        # Generate the assistant result
         result = answer_question(
             request.user,
             query
         )
 
+        # Save assistant response + result information
         AssistantMessage.objects.create(
             user=request.user,
             role="assistant",
-            message=result["answer"]
+            message=result["answer"],
+            metadata={
+                "lecture": result.get("lecture"),
+                "course": result.get("course"),
+                "lecture_id": result.get("lecture_id"),
+                "timestamp": result.get("timestamp"),
+                "timestamp_display": result.get(
+                    "timestamp_display"
+                ),
+                "match_type": result.get("match_type"),
+            }
         )
 
+        # Send the result back to JavaScript
         return JsonResponse(result)
+    
+class ClearChatView(LoginRequiredMixin, View):
+
+    login_url = "login"
+
+    def post(self, request):
+
+        AssistantMessage.objects.filter(
+            user=request.user
+        ).delete()
+
+        return JsonResponse({
+            "message": "Chat cleared."
+        })
+

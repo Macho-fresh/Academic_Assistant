@@ -3,7 +3,75 @@ const sendButton = document.getElementById("sendButton");
 const voiceButton = document.getElementById("voiceButton");
 const chat = document.getElementById("assistantChat");
 
+const clearChatButton =
+    document.getElementById("clearChatButton");
 
+clearChatButton.addEventListener(
+    "click",
+    async function () {
+
+        const confirmed = confirm(
+            "Clear your entire chat history?"
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+
+            const response = await fetch(
+                CLEAR_CHAT_URL,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "X-CSRFToken":
+                            getCookie("csrftoken")
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    "Could not clear chat."
+                );
+            }
+
+            chat.innerHTML = "";
+
+            addMessage(
+                "Ask me anything about your lectures.",
+                "assistant"
+            );
+
+        } catch (error) {
+
+            console.error(
+                "CLEAR CHAT ERROR:",
+                error
+            );
+        }
+    }
+);
+
+document.addEventListener(
+    "click",
+    function (event) {
+
+        const button = event.target.closest(
+            ".assistant-speak-button"
+        );
+
+        if (!button) {
+            return;
+        }
+
+        speakText(
+            button.dataset.speech
+        );
+    }
+);
 // ==========================================
 // CSRF TOKEN
 // ==========================================
@@ -101,6 +169,7 @@ function addMessage(
         );
 
 
+
         let lectureText = "";
 
         if (
@@ -171,6 +240,45 @@ function addMessage(
         );
     }
 
+    // ======================================
+// TIMETABLE RESULT
+// ======================================
+
+    if (
+        role === "assistant" &&
+        options.matchType === "timetable"
+    ) {
+
+        const resultBox =
+            document.createElement("div");
+
+        resultBox.classList.add(
+            "assistant-result"
+        );
+
+
+        const timetableLink =
+            document.createElement("a");
+
+        timetableLink.classList.add(
+            "assistant-result-link"
+        );
+
+        timetableLink.href =
+            "/timetable/";
+
+        timetableLink.textContent =
+            "View timetable";
+
+
+        resultBox.appendChild(
+            timetableLink
+        );
+
+        messageWrapper.appendChild(
+            resultBox
+        );
+    }
 
     // ======================================
     // SPEAK BUTTON
@@ -358,7 +466,9 @@ async function sendMessage() {
                     data.timestamp,
 
                 timestampDisplay:
-                    data.timestamp_display
+                    data.timestamp_display,
+                
+                matchType: data.match_type
             }
         );
 

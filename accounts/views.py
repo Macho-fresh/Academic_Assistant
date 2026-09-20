@@ -15,6 +15,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
+from django.db.models import Sum
 
 from courses.models import Course
 from lectures.models import Lecture
@@ -400,7 +401,31 @@ class DashboardView(LoginRequiredMixin, View):
         total_lectures = lectures.count()
 
         # We don't currently store recording duration
-        hours_recorded = "0h"
+        # Total recorded lecture duration
+        total_seconds = (
+            lectures.aggregate(
+                total=Sum("duration_seconds")
+            )["total"]
+            or 0
+        )
+
+        total_seconds = int(total_seconds)
+
+        hours = total_seconds // 3600
+        minutes = (total_seconds % 3600) // 60
+        seconds = total_seconds % 60
+
+        if hours > 0 and minutes > 0:
+            hours_recorded = f"{hours}h {minutes}m"
+
+        elif hours > 0:
+            hours_recorded = f"{hours}h"
+
+        elif minutes > 0:
+            hours_recorded = f"{minutes}m"
+
+        else:
+            hours_recorded = f"{seconds}s"
 
 
         # ==============================

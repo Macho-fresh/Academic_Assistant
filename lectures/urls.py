@@ -20,4 +20,9 @@ urlpatterns = [
     views.UploadLectureView.as_view(),
     name="upload_lecture"
     ),
+    path(
+    "lecture-audio/<int:lecture_id>/",
+    views.stream_lecture_audio,
+    name="stream_lecture_audio"
+),
 ]

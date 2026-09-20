@@ -1,6 +1,9 @@
 import re
 
 from lectures.models import Lecture
+from timetable.models import Timetable
+from django.utils import timezone
+from datetime import timedelta
 
 
 STOP_WORDS = {
@@ -693,6 +696,251 @@ def find_best_match(user, query):
 
     return best_result
 
+def is_timetable_question(query):
+    query = query.lower()
+
+    timetable_phrases = [
+        "timetable",
+        "schedule",
+        "next class",
+        "classes today",
+        "class today",
+        "classes tomorrow",
+        "class tomorrow",
+        "what class",
+        "what classes",
+        "when is",
+        "where is my class",
+        "where is my next class",
+    ]
+
+    days = [
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday",
+    ]
+
+    return (
+        any(
+            phrase in query
+            for phrase in timetable_phrases
+        )
+        or (
+            "class" in query
+            and any(day in query for day in days)
+        )
+    )
+
+def answer_timetable_question(user, query):
+
+    query = query.lower()
+
+    entries = (
+        Timetable.objects
+        .filter(owner=user)
+        .select_related("course")
+        .order_by("start_time")
+    )
+
+    if not entries.exists():
+        return {
+            "answer": "You don't have any classes in your timetable yet.",
+            "lecture": None,
+            "course": None,
+            "course_title": None,
+            "lecture_id": None,
+            "timestamp": None,
+            "timestamp_display": None,
+            "match_type": "timetable",
+            "score": 1,
+        }
+
+    today = timezone.localdate()
+
+    day_names = [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+    ]
+
+    # ------------------------------
+    # DETERMINE REQUESTED DAY
+    # ------------------------------
+
+    requested_day = None
+
+    if "today" in query:
+
+        requested_day = today.strftime("%A")
+
+    elif "tomorrow" in query:
+
+        tomorrow = today + timedelta(days=1)
+
+        requested_day = tomorrow.strftime("%A")
+
+    else:
+
+        for day in day_names:
+
+            if day.lower() in query:
+
+                requested_day = day
+                break
+
+
+    # ------------------------------
+    # SPECIFIC COURSE
+    # ------------------------------
+
+    for entry in entries:
+
+        course_code = entry.course.course_code.lower()
+
+        course_title = entry.course.course_title.lower()
+
+        if (
+            course_code in query
+            or course_title in query
+        ):
+
+            answer = (
+                f"{entry.course.course_code} - "
+                f"{entry.course.course_title} is scheduled "
+                f"on {entry.day} from "
+                f"{entry.start_time.strftime('%I:%M %p')} to "
+                f"{entry.end_time.strftime('%I:%M %p')}"
+            )
+
+            if entry.venue:
+
+                answer += (
+                    f" at {entry.venue}"
+                )
+
+            answer += "."
+
+            return {
+                "answer": answer,
+                "lecture": None,
+                "course": entry.course.course_code,
+                "course_title": entry.course.course_title,
+                "lecture_id": None,
+                "timestamp": None,
+                "timestamp_display": None,
+                "match_type": "timetable",
+                "score": 1,
+            }
+
+
+    # ------------------------------
+    # SPECIFIC DAY
+    # ------------------------------
+
+    if requested_day:
+
+        day_entries = entries.filter(
+            day__iexact=requested_day
+        )
+
+        if not day_entries.exists():
+
+            answer = (
+                f"You don't have any classes "
+                f"scheduled for {requested_day}."
+            )
+
+        else:
+
+            lines = []
+
+            for entry in day_entries:
+
+                class_text = (
+                    f"{entry.course.course_code} - "
+                    f"{entry.course.course_title}, "
+                    f"{entry.start_time.strftime('%I:%M %p')} - "
+                    f"{entry.end_time.strftime('%I:%M %p')}"
+                )
+
+                if entry.venue:
+
+                    class_text += (
+                        f", {entry.venue}"
+                    )
+
+                lines.append(class_text)
+
+            answer = (
+                f"Your classes for {requested_day} are:\n"
+                + "\n".join(lines)
+            )
+
+        return {
+            "answer": answer,
+            "lecture": None,
+            "course": None,
+            "course_title": None,
+            "lecture_id": None,
+            "timestamp": None,
+            "timestamp_display": None,
+            "match_type": "timetable",
+            "score": 1,
+        }
+
+
+    # ------------------------------
+    # COMPLETE TIMETABLE
+    # ------------------------------
+
+    lines = []
+
+    for day in day_names:
+
+        day_entries = entries.filter(
+            day__iexact=day
+        )
+
+        for entry in day_entries:
+
+            class_text = (
+                f"{day}: "
+                f"{entry.course.course_code} - "
+                f"{entry.course.course_title}, "
+                f"{entry.start_time.strftime('%I:%M %p')} - "
+                f"{entry.end_time.strftime('%I:%M %p')}"
+            )
+
+            if entry.venue:
+
+                class_text += (
+                    f", {entry.venue}"
+                )
+
+            lines.append(class_text)
+
+    return {
+        "answer": (
+            "Here is your timetable:\n"
+            + "\n".join(lines)
+        ),
+        "lecture": None,
+        "course": None,
+        "course_title": None,
+        "lecture_id": None,
+        "timestamp": None,
+        "timestamp_display": None,
+        "match_type": "timetable",
+        "score": 1,
+    }
 
 def answer_question(user, query):
     """
@@ -711,6 +959,13 @@ def answer_question(user, query):
             "timestamp": None,
             "timestamp_display": None,
         }
+
+    if is_timetable_question(query):
+
+        return answer_timetable_question(
+            user,
+            query
+        )
 
     result = find_best_match(
         user,

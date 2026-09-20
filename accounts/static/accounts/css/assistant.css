@@ -378,6 +378,32 @@
     background: #94a3b8;
 }
 
+.assistant-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.clear-chat-button {
+    padding: 9px 14px;
+
+    background: white;
+    color: #12345b;
+
+    border: 1px solid #d7dee8;
+    border-radius: 8px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.clear-chat-button:hover {
+    background: #f3f6f9;
+}
+
 
 /* =========================================
    RESPONSIVE

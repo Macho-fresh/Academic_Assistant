@@ -22,6 +22,11 @@ class AssistantMessage(models.Model):
 
     message = models.TextField()
 
+    metadata = models.JSONField(
+        default=dict,
+        blank=True
+    )
+
     created_at = models.DateTimeField(
         auto_now_add=True
     )

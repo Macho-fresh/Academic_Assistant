@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404
 from lectures.models import *
 from django.db.models import Count, Q
+from django.db.models import Sum
 
 from .models import Course
 
@@ -222,7 +223,60 @@ def course_detail(request, course_id):
         .order_by("-created_at")
     )
 
+    # Total lectures
     total_lectures = lectures.count()
+
+
+    # ==============================
+    # TOTAL RECORDED DURATION
+    # ==============================
+
+    total_seconds = (
+        lectures.aggregate(
+            total=Sum("duration_seconds")
+        )["total"]
+        or 0
+    )
+
+    total_seconds = int(total_seconds)
+
+    hours = total_seconds // 3600
+
+    minutes = (
+        total_seconds % 3600
+    ) // 60
+
+    seconds = total_seconds % 60
+
+
+    if hours > 0 and minutes > 0:
+
+        total_recorded = (
+            f"{hours}h {minutes}m"
+        )
+
+    elif hours > 0:
+
+        total_recorded = (
+            f"{hours}h"
+        )
+
+    elif minutes > 0:
+
+        total_recorded = (
+            f"{minutes}m"
+        )
+
+    else:
+
+        total_recorded = (
+            f"{seconds}s"
+        )
+
+
+    # ==============================
+    # LAST LECTURE
+    # ==============================
 
     last_lecture = lectures.first()
 
@@ -232,13 +286,27 @@ def course_detail(request, course_id):
         else None
     )
 
+
+    # ==============================
+    # PROCESSED LECTURES
+    # ==============================
+
+    processed_count = lectures.filter(
+        status="completed"
+    ).count()
+
+
+    # ==============================
+    # CONTEXT
+    # ==============================
+
     context = {
         "course": course,
         "lectures": lectures,
         "total_lectures": total_lectures,
-        "total_recorded": "0h 0m",
+        "total_recorded": total_recorded,
         "last_lecture_date": last_lecture_date,
-        "processed_count": 0,
+        "processed_count": processed_count,
     }
 
     return render(
