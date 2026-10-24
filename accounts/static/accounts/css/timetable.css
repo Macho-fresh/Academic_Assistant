@@ -117,6 +117,42 @@
 .timetable-event__title { display: block; opacity: 0.92; }
 .timetable-event__time, .timetable-event__location { display: block; font-size: 10px; margin-top: 3px; }
 
+
+/* .timetable-event {
+    position: relative;
+    box-sizing: border-box;
+} */
+
+.timetable-delete-form {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    margin: 0;
+    z-index: 10;
+}
+
+.timetable-delete-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: #dc2626;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.timetable-delete-btn:hover {
+    background: #dc2626;
+    color: #ffffff;
+}
+
 /* ---- Responsive ----------------------------------------------------------------- */
 
 @media (max-width: 992px) {

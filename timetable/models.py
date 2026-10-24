@@ -12,8 +12,7 @@ class Timetable(models.Model):
         ("tuesday", "Tuesday"),
         ("wednesday", "Wednesday"),
         ("thursday", "Thursday"),
-        ("friday", "Friday"),
-        ("saturday", "Saturday"),
+        ("friday", "Friday")
     ]
 
     REMINDER_CHOICES = [

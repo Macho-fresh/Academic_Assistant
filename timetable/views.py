@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.contrib import messages
 from courses.models import Course
@@ -10,7 +10,7 @@ from datetime import datetime
 
 class TimetableView(LoginRequiredMixin, View):
     login_url = "login"
-
+    
     def get(self, request):
         timetable_entries = Timetable.objects.filter(
             owner=request.user
@@ -92,10 +92,17 @@ class AddClassView(LoginRequiredMixin, View):
     login_url = "login"
 
     def get(self, request):
-        courses = Course.objects.all()
+        if request.user.role == "lecturer":
+            allowed_courses = Course.objects.filter(
+                lecturer=request.user
+            )
+        else:
+            allowed_courses = Course.objects.filter(
+                department__iexact=request.user.department.strip()
+            )
 
         context = {
-            "courses": courses,
+            "courses": allowed_courses,
         }
 
         return render(
@@ -199,6 +206,25 @@ class AddClassView(LoginRequiredMixin, View):
         messages.success(
             request,
             "Class added successfully."
+        )
+
+        return redirect("timetable")
+
+class DeleteClassView(LoginRequiredMixin, View):
+    login_url = "login"
+
+    def post(self, request, entry_id):
+        entry = get_object_or_404(
+            Timetable,
+            id=entry_id,
+            owner=request.user
+        )
+
+        entry.delete()
+
+        messages.success(
+            request,
+            "Timetable entry deleted successfully."
         )
 
         return redirect("timetable")

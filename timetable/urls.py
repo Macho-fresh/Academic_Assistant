@@ -13,4 +13,10 @@ urlpatterns = [
         AddClassView.as_view(),
         name="add_class"
     ),
+
+    path(
+        "delete/<int:entry_id>/",
+        DeleteClassView.as_view(),
+        name="delete_class"
+    ),
 ]

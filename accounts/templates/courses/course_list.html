@@ -35,7 +35,7 @@
       </div>
 
       <div class="page-header__actions">
-
+        {% if request.user.role == "lecturer" %}
         <a
           href="{% url 'add_course' %}"
           class="btn btn--primary"
@@ -56,7 +56,7 @@
 
           Add Course
         </a>
-
+        {% endif %}
       </div>
 
     </div>
@@ -264,13 +264,14 @@
           <p class="empty-state__desc">
             Add a course to begin organizing lecture recordings.
           </p>
-
-          <a
-            href="{% url 'add_course' %}"
-            class="btn btn--primary"
-          >
-            Add Course
-          </a>
+          {% if request.user.role == "lecturer" %}
+            <a
+              href="{% url 'add_course' %}"
+              class="btn btn--primary"
+            >
+              Add Course
+            </a>
+          {% endif %}
 
         </div>
 

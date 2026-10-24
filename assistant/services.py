@@ -159,8 +159,6 @@ def get_transcript_segments(lecture):
     """
     Safely retrieve timestamped transcript segments.
 
-    Adjust the related-name checks here if your
-    transcript segment model uses a different name.
     """
 
     possible_related_names = [

@@ -12,12 +12,17 @@ def create_topic_label(text):
         vectorizer = TfidfVectorizer(
             stop_words="english",
             max_features=3,
-            ngram_range=(1, 2)
+            ngram_range=(1, 2)  
         )
-
+        # ngram_range picks a range from (1,2) meaning a unigram and biagram 
+        # so basically it does: the vectorizer examines the text, removes stop words, 
+        # identifies possible unigrams and bigrams, and selects up to three features.   
         matrix = vectorizer.fit_transform([text])
 
         keywords = vectorizer.get_feature_names_out()
+        # get_feature_names_out() returns feature names in the vectorizer's feature order, 
+        # which is typically alphabetical. It does not return them ranked from highest TF-IDF 
+        # score to lowest.
 
         if len(keywords) == 0:
             return "Lecture Topic"

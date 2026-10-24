@@ -178,36 +178,39 @@ class AddCourseView(LoginRequiredMixin, View):
         return redirect("courses")
 
 
-@login_required(login_url="login")
+@login_required
 def course_list(request):
-
+    user = request.user
     query = request.GET.get("q", "").strip()
-
+    
+    # 1. Base queryset with optimized joins
     courses = (
         Course.objects
         .select_related("lecturer")
-        .annotate(
-            lecture_count=Count("lecture")
-        )
+        .annotate(lecture_count=Count("lecture"))
         .order_by("course_code")
     )
-
+    
+    # 2. Role-based filtering using the user's role field
+    if user.role == "lecturer":
+        # Filter where the course lecturer is the logged-in user
+        courses = courses.filter(lecturer=user)
+        
+    elif user.role == "student":
+        # Filter where the course department matches the student's department
+        courses = courses.filter(department=user.department)
+    
+    # 3. Optional search query filtering
     if query:
         courses = courses.filter(
-            Q(course_code__icontains=query) |
+            Q(course_code__icontains=query) | 
             Q(course_title__icontains=query)
         )
-
+        
     context = {
         "courses": courses,
     }
-
-    return render(
-        request,
-        "courses/course_list.html",
-        context
-    )
-
+    return render(request, "courses/course_list.html", context)
 
 @login_required(login_url="login")
 def course_detail(request, course_id):

@@ -15,6 +15,11 @@ def get_model():
             device="cpu",
             compute_type="int8"
         )
+        # Because you configured it with device="cpu", 
+        # it uses your computer's processor rather than a GPU.
+
+        # Uses 8-bit integer quantization for model computation where supported. 
+        # This can reduce memory use and improve CPU efficiency, with possible trade-offs in numerical precision.
 
         print("Whisper model loaded successfully.")
 
@@ -30,6 +35,8 @@ def transcribe_audio(audio_path):
         audio_path,
         beam_size=5
     )
+    # configures beam search, a decoding method that 
+    # considers multiple possible word sequences when generating a transcription.
 
     full_transcript = []
     timestamped_segments = []
